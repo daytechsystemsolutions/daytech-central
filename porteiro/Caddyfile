@@ -1,0 +1,17 @@
+# Porteiro da VPS do site: recebe tudo nas portas 80/443, cuida do HTTPS (Let's Encrypt, automático)
+# e encaminha cada domínio para o container dele, pela rede docker "porteiro".
+# Domínio novo = um bloco novo aqui + `docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile`.
+
+# Site institucional MedNext (repo mednextsst-site). O nginx do site segue com vídeos, cache e limites.
+mednextsst.com, www.mednextsst.com {
+	reverse_proxy mednext_site_nginx_prod:80
+}
+
+# Central DayTech (repo daytech-central). Até a etapa 1, só uma página de aviso.
+central.daytechsolutions.com.br {
+	header {
+		Strict-Transport-Security "max-age=63072000"
+		X-Robots-Tag "noindex, nofollow"
+	}
+	respond "Central DayTech: em construção." 200
+}

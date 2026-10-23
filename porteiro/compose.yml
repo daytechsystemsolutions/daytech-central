@@ -1,0 +1,40 @@
+# Porteiro da VPS do site (Caddy). Fica numa pasta própria no servidor: ~/porteiro
+# Subir: docker compose up -d   ·   Recarregar o Caddyfile: docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile
+services:
+  caddy:
+    image: caddy:2.10-alpine
+    container_name: porteiro_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    volumes:
+      - ./:/etc/caddy:ro          # a pasta inteira (assim o reload enxerga o Caddyfile novo)
+      - caddy_data:/data        # certificados: não apagar
+      - caddy_config:/config
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+    networks:
+      porteiro:
+        ipv4_address: 10.201.0.2   # IP fixo: o nginx do site só confia no X-Forwarded-For vindo daqui
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  porteiro:
+    external: true   # criada uma vez: docker network create --subnet 10.201.0.0/24 --ip-range 10.201.0.128/25 porteiro
