@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CalendarioItem;
 use App\Models\Ideia;
+use App\Models\Pauta;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,6 +35,8 @@ class CalendarioController extends Controller
             'semanas' => $semanas,
             'conteudos' => $conteudos,
             'ideias' => $marca->ideias()->latest()->get(),
+            'pautas' => $marca->pautas()->where('estado', 'nova')->orderByDesc('potencial')->orderBy('titulo')->get(),
+            'porques' => $marca->pautas()->whereIn('chave', $itens->pluck('pauta_chave')->filter())->get()->keyBy('chave'),
         ]);
     }
 
@@ -122,6 +125,42 @@ class CalendarioController extends Controller
 
         return redirect()->route('calendario', ['mes' => $item->data->format('Y-m')])
             ->with('ok', $request->boolean('produzir') ? 'Tema criado. '.$this->textoPedido(1) : 'Tema criado no calendário.');
+    }
+
+    /** "Pôr no calendário": a pauta do banco vira tema no dia escolhido (e o kit traz na sincronização). */
+    public function pautaNoCalendario(Request $request, Pauta $pauta): RedirectResponse
+    {
+        $marca = $request->attributes->get('marca');
+        abort_unless($pauta->marca_id === $marca->id, 404);
+        $dados = $request->validate([
+            'data' => 'required|date|after_or_equal:today',
+            'hora' => ['nullable', 'regex:/^\d{2}:\d{2}$/'],
+        ], ['data.required' => 'Escolha o dia.', 'data.after_or_equal' => 'Escolha hoje ou um dia depois.']);
+        if ($pauta->estado !== 'nova') {
+            return back()->with('aviso', 'Esta pauta já saiu do banco.');
+        }
+
+        $chave = $dados['data'];
+        for ($n = 2; $marca->calendario()->where('chave', $chave)->exists(); $n++) {
+            $chave = $dados['data'].'-'.$n;
+        }
+        $item = $marca->calendario()->create([
+            'chave' => $chave, 'data' => $dados['data'], 'hora' => $dados['hora'] ?? '11:40', 'titulo' => $pauta->titulo,
+            'ideia' => $pauta->ideia, 'publico' => $pauta->publico && $pauta->publico !== 'geral' ? [$pauta->publico] : [], 'estado' => 'tema_aprovado',
+            'origem' => 'central', 'pauta_chave' => $pauta->chave,
+        ]);
+        $pauta->forceFill(['estado' => 'no_calendario', 'calendario_chave' => $chave])->save();
+
+        return redirect()->route('calendario', ['mes' => $item->data->format('Y-m')])
+            ->with('ok', 'Pauta no calendário em '.$item->data->format('d/m').'. Ela é produzida na quinta anterior, ou peça "Produzir só este agora".');
+    }
+
+    public function descartarPauta(Request $request, Pauta $pauta): RedirectResponse
+    {
+        abort_unless($pauta->marca_id === $request->attributes->get('marca')->id, 404);
+        $pauta->forceFill(['estado' => 'descartada'])->save();
+
+        return back()->with('ok', 'Pauta descartada. A pesquisa não sugere de novo.');
     }
 
     private function textoPedido(int $n): string

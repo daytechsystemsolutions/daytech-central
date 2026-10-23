@@ -40,6 +40,8 @@ Route::middleware(['auth', 'dois.fatores', 'marca.atual'])->group(function () {
     Route::post('/calendario/{item}/trocar', [CalendarioController::class, 'trocar'])->name('calendario.trocar');
     Route::post('/calendario/{item}/tirar', [CalendarioController::class, 'tirar'])->name('calendario.tirar');
     Route::post('/calendario/{item}/manter', [CalendarioController::class, 'manter'])->name('calendario.manter');
+    Route::post('/pautas/{pauta}/calendario', [CalendarioController::class, 'pautaNoCalendario'])->name('pautas.calendario');
+    Route::post('/pautas/{pauta}/descartar', [CalendarioController::class, 'descartarPauta'])->name('pautas.descartar');
     Route::post('/ideias', [CalendarioController::class, 'novaIdeia'])->name('ideias.criar');
     Route::delete('/ideias/{ideia}', [CalendarioController::class, 'apagarIdeia'])->name('ideias.apagar');
 

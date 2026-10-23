@@ -51,6 +51,9 @@
           </summary>
           <div class="cartao-corpo borda-topo">
             @if($item->motivo)<p class="motivo-ia"><strong>Por que a IA sugeriu:</strong> {{ $item->motivo }}</p>@endif
+            @if($item->pauta_chave && isset($porques[$item->pauta_chave]))
+              @include('calendario.porque', ['pauta' => $porques[$item->pauta_chave]])
+            @endif
             @if($item->ideia)<p class="fraco">{{ $item->ideia }}</p>@endif
             @if($item->decisao === 'trocar' && $item->nota)<p class="fraco">Troca pedida: {{ $item->nota }}</p>@endif
 
@@ -144,6 +147,51 @@
       @endif
     </section>
   @endforeach
+
+  <section class="secao" aria-labelledby="banco-pautas">
+    <h2 id="banco-pautas" class="secao-titulo">Banco de pautas</h2>
+    <p class="fraco">Temas que a pesquisa de quinta achou e ainda não estão no calendário, do maior potencial para o menor. O potencial junta o que o mercado procura, o histórico da conta, os prazos legais e as dúvidas reais.</p>
+    @if($pautas->isEmpty())
+      <p class="fraco">Nenhuma pauta no banco. A próxima pesquisa roda na quinta.</p>
+    @endif
+    @foreach($pautas as $pauta)
+      <details class="cartao item-cal">
+        <summary class="item-cal-linha">
+          <span class="potencial {{ $pauta->potencial >= 70 ? 'alto' : ($pauta->potencial >= 50 ? 'medio' : '') }}"><strong>{{ $pauta->potencial }}</strong><span class="rotulo">potencial</span></span>
+          <span class="textos">
+            <span class="forte">{{ $pauta->titulo }}</span>
+            <span class="linha-pilulas">
+              <span class="pilula neutro">{{ $pauta->formato === 'reels' ? 'Reels' : 'carrossel' }}</span>
+              @if($pauta->prazo)<span class="pilula atencao">prazo {{ $pauta->prazo->format('d/m') }}</span>@endif
+              <span class="fraco">{{ \App\Models\Conteudo::publicoEmTexto($pauta->publico ? [$pauta->publico] : []) }}</span>
+            </span>
+          </span>
+        </summary>
+        <div class="cartao-corpo borda-topo">
+          @if($pauta->ideia)<p class="fraco">{{ $pauta->ideia }}</p>@endif
+          @include('calendario.porque', ['pauta' => $pauta])
+          <form method="post" action="{{ route('pautas.calendario', $pauta) }}" class="secao">
+            @csrf
+            <div class="duas">
+              <div class="campo">
+                <label for="pauta-data-{{ $pauta->id }}">Dia</label>
+                <input id="pauta-data-{{ $pauta->id }}" name="data" type="date" required min="{{ today()->toDateString() }}">
+              </div>
+              <div class="campo">
+                <label for="pauta-hora-{{ $pauta->id }}">Hora</label>
+                <input id="pauta-hora-{{ $pauta->id }}" name="hora" type="time" value="11:40">
+              </div>
+            </div>
+            <button type="submit" class="botao escuro cheio">Pôr no calendário</button>
+          </form>
+          <form method="post" action="{{ route('pautas.descartar', $pauta) }}">
+            @csrf
+            <button type="submit" class="botao cheio texto-erro">Descartar esta pauta</button>
+          </form>
+        </div>
+      </details>
+    @endforeach
+  </section>
 
   <section class="secao" aria-labelledby="ideias">
     <h2 id="ideias" class="secao-titulo">Ideias</h2>

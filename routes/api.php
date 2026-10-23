@@ -26,4 +26,6 @@ Route::middleware(['fabrica', 'throttle:120,1'])->prefix('fabrica/marcas/{marca}
     Route::get('/posts/{igId}/capa', [AprendizadoController::class, 'capa']);
     Route::get('/aprendizados', [AprendizadoController::class, 'aprendizados']);
     Route::put('/regras', [AprendizadoController::class, 'regras']);
+    Route::get('/pesquisa/insumos', [AprendizadoController::class, 'insumosDaPesquisa']);
+    Route::put('/pautas', [AprendizadoController::class, 'pautas']);
 });

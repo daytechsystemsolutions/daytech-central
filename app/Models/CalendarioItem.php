@@ -10,7 +10,7 @@ class CalendarioItem extends Model
     protected $table = 'calendario_itens';
 
     protected $fillable = ['marca_id', 'chave', 'data', 'hora', 'titulo', 'ideia', 'publico', 'tipo', 'estado', 'carrossel', 'decisao', 'nota', 'decidido_em',
-        'producao_pedida_em', 'producao_iniciada_em', 'origem', 'sugerido_ia', 'teste', 'motivo'];
+        'producao_pedida_em', 'producao_iniciada_em', 'origem', 'sugerido_ia', 'teste', 'motivo', 'pauta_chave'];
 
     /** Estados em que o tema ainda pode ser trocado ou tirado (antes da produção). */
     public const DECIDIVEIS = ['proposto', 'tema_aprovado', 'trocar', 'tirado'];
@@ -24,6 +24,11 @@ class CalendarioItem extends Model
     public function getRouteKeyName(): string
     {
         return 'id';
+    }
+
+    public function pauta(): ?Pauta
+    {
+        return $this->pauta_chave ? Pauta::where('marca_id', $this->marca_id)->where('chave', $this->pauta_chave)->first() : null;
     }
 
     public function marca(): BelongsTo

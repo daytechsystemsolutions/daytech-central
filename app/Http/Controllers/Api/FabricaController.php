@@ -34,6 +34,7 @@ class FabricaController extends Controller
             'itens.*.sugerido_ia' => 'nullable|boolean',
             'itens.*.teste' => 'nullable|boolean',
             'itens.*.motivo' => 'nullable|string|max:300',
+            'itens.*.pauta' => 'nullable|string|max:80',
         ]);
 
         $contagem = DB::transaction(function () use ($marca, $dados) {
@@ -44,7 +45,7 @@ class FabricaController extends Controller
                     'ideia' => $i['ideia'] ?? null, 'publico' => $i['publico'] ?? [], 'tipo' => $i['tipo'] ?? null,
                     'estado' => $i['estado'] ?? 'proposto', 'carrossel' => $i['carrossel'] ?? $item->carrossel,
                     'sugerido_ia' => (bool) ($i['sugerido_ia'] ?? false), 'teste' => (bool) ($i['teste'] ?? false),
-                    'motivo' => $i['motivo'] ?? null,
+                    'motivo' => $i['motivo'] ?? null, 'pauta_chave' => $i['pauta'] ?? $item->pauta_chave,
                 ]);
                 // Passou da fase de tema (produzido, aprovado...): a decisão de tema e o pedido de produção acabaram.
                 if (! $item->podeMexer()) {
@@ -147,7 +148,7 @@ class FabricaController extends Controller
     private function itemParaKit(CalendarioItem $i): array
     {
         return ['id' => $i->chave, 'data' => $i->data->toDateString(), 'hora' => $i->hora, 'titulo' => $i->titulo,
-            'ideia' => $i->ideia, 'publico' => $i->publico ?? [], 'tipo' => $i->tipo, 'estado' => $i->estado];
+            'ideia' => $i->ideia, 'publico' => $i->publico ?? [], 'tipo' => $i->tipo, 'estado' => $i->estado, 'pauta' => $i->pauta_chave];
     }
 
     public function ideias(Marca $marca): JsonResponse

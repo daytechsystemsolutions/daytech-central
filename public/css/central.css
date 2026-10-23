@@ -307,3 +307,17 @@ p { margin: 0; }
   .lamina { max-width: none; }
   .aprovar-lado { flex: 1 1 340px; position: sticky; top: 16px; }
 }
+
+/* Pesquisa de pauta: potencial no banco e o "Por que este tema" */
+.potencial { width: 64px; flex: none; display: flex; flex-direction: column; align-items: center; line-height: 1.05; }
+.potencial strong { font-family: Archivo, Inter, sans-serif; font-variation-settings: 'wdth' 88; font-weight: 800; font-size: 24px; color: var(--neutro); }
+.potencial.medio strong { color: var(--marinho); }
+.potencial.alto strong { color: var(--marinho); background: var(--acao); padding: 0 6px; border-radius: 4px; }
+.potencial .rotulo { font-size: 10px; margin-top: 2px; }
+.porque { background: var(--acento-claro); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: var(--marinho); }
+.porque p { margin: 0; }
+.porque-partes, .porque-fontes { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.porque-partes li { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; }
+.porque-pontos { font-weight: 800; font-variant-numeric: tabular-nums; }
+.porque-resumo { grid-column: 1 / -1; font-size: 13px; }
+.porque-fontes a { font-weight: 600; word-break: break-word; }
