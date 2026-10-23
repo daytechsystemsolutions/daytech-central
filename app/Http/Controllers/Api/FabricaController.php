@@ -41,9 +41,9 @@ class FabricaController extends Controller
                     'ideia' => $i['ideia'] ?? null, 'publico' => $i['publico'] ?? [], 'tipo' => $i['tipo'] ?? null,
                     'estado' => $i['estado'] ?? 'proposto', 'carrossel' => $i['carrossel'] ?? $item->carrossel,
                 ]);
-                // Passou da fase de tema (produzido, aprovado...): a decisão de tema não vale mais.
+                // Passou da fase de tema (produzido, aprovado...): a decisão de tema e o pedido de produção acabaram.
                 if (! $item->podeMexer()) {
-                    $item->fill(['decisao' => null, 'nota' => null]);
+                    $item->fill(['decisao' => null, 'nota' => null, 'producao_pedida_em' => null, 'producao_iniciada_em' => null]);
                 }
                 $item->save();
             }
@@ -111,6 +111,38 @@ class FabricaController extends Controller
                 'versao' => $c->versao,
                 'hash_laminas' => $c->hash_laminas,
             ])->values());
+    }
+
+    /** Temas com "Produzir agora" pedido na Central e ainda não produzidos. */
+    public function pedidos(Marca $marca): JsonResponse
+    {
+        return response()->json($marca->calendario()->whereNotNull('producao_pedida_em')->orderBy('data')->get()
+            ->filter(fn (CalendarioItem $i) => $i->podeProduzir())
+            ->map(fn (CalendarioItem $i) => $this->itemParaKit($i) + [
+                'pedido_em' => $i->producao_pedida_em->toIso8601String(),
+                'iniciado_em' => $i->producao_iniciada_em?->toIso8601String(),
+            ])->values());
+    }
+
+    public function iniciarPedido(Marca $marca, string $chave): JsonResponse
+    {
+        $item = $marca->calendario()->where('chave', $chave)->whereNotNull('producao_pedida_em')->firstOrFail();
+        $item->forceFill(['producao_iniciada_em' => $item->producao_iniciada_em ?? now()])->save();
+
+        return response()->json(['ok' => true]);
+    }
+
+    /** Temas criados na Central ("+ Novo tema"), para o kit pôr no calendario.yaml. */
+    public function temasDaCentral(Marca $marca): JsonResponse
+    {
+        return response()->json($marca->calendario()->where('origem', 'central')->orderBy('data')->get()
+            ->map(fn (CalendarioItem $i) => $this->itemParaKit($i))->values());
+    }
+
+    private function itemParaKit(CalendarioItem $i): array
+    {
+        return ['id' => $i->chave, 'data' => $i->data->toDateString(), 'hora' => $i->hora, 'titulo' => $i->titulo,
+            'ideia' => $i->ideia, 'publico' => $i->publico ?? [], 'tipo' => $i->tipo, 'estado' => $i->estado];
     }
 
     public function ideias(Marca $marca): JsonResponse

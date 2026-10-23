@@ -91,8 +91,10 @@ class RecebeConteudo
                 Storage::put($caminho, $pdf);
                 $conteudo->forceFill(['pdf_caminho' => $caminho])->save();
             }
-            if ($item && $item->carrossel !== $conteudo->nome) {
-                $item->forceFill(['carrossel' => $conteudo->nome])->save();
+            if ($item) {
+                // Chegou o carrossel: o tema está produzido e o pedido de produção (se houve) acabou.
+                $item->forceFill(['carrossel' => $conteudo->nome, 'producao_pedida_em' => null, 'producao_iniciada_em' => null,
+                    'estado' => $item->podeMexer() ? 'produzido' : $item->estado])->save();
             }
 
             return $conteudo->fresh();

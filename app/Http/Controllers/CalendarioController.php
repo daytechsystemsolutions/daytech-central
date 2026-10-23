@@ -23,7 +23,11 @@ class CalendarioController extends Controller
             ->orderBy('data')->orderBy('hora')->get();
         $conteudos = $marca->conteudos()->whereIn('nome', $itens->pluck('carrossel')->filter())->get()->keyBy('nome');
 
-        $semanas = $itens->groupBy(fn (CalendarioItem $i) => $i->data->startOfWeek()->toDateString());
+        // Todas as semanas que tocam o mês (segunda a domingo), mesmo vazias: dá para criar tema nelas.
+        $semanas = collect();
+        for ($ini = $mes->startOfMonth()->startOfWeek(\Carbon\CarbonInterface::MONDAY); $ini->lte($mes->endOfMonth()); $ini = $ini->addWeek()) {
+            $semanas[$ini->toDateString()] = $itens->filter(fn (CalendarioItem $i) => $i->data->startOfWeek(\Carbon\CarbonInterface::MONDAY)->toDateString() === $ini->toDateString())->values();
+        }
 
         return view('calendario', [
             'mes' => $mes,
@@ -48,6 +52,83 @@ class CalendarioController extends Controller
     public function manter(CalendarioItem $item): RedirectResponse
     {
         return $this->decidir($item, 'manter', null, 'Tema de volta ao calendário.');
+    }
+
+    /** "Produzir esta semana agora": a sincronização do kit (de hora em hora) pega e produz. */
+    public function produzirSemana(Request $request, string $inicio): RedirectResponse
+    {
+        abort_unless(preg_match('/^\d{4}-\d{2}-\d{2}$/', $inicio), 404);
+        $ini = CarbonImmutable::parse($inicio)->startOfWeek(\Carbon\CarbonInterface::MONDAY);
+        $pedidos = $request->attributes->get('marca')->calendario()
+            ->where('data', '>=', $ini->toDateString())->where('data', '<', $ini->addWeek()->toDateString())
+            ->whereNull('producao_pedida_em')->get()
+            ->filter(fn (CalendarioItem $i) => $i->podeProduzir())
+            ->each(fn (CalendarioItem $i) => $i->forceFill(['producao_pedida_em' => now()])->save());
+
+        if ($pedidos->isEmpty()) {
+            return back()->with('aviso', 'Nada para produzir nesta semana: crie um tema ou veja se já foram produzidos.');
+        }
+
+        return redirect()->route('calendario', ['mes' => $ini->format('Y-m')])
+            ->with('ok', $this->textoPedido($pedidos->count()));
+    }
+
+    public function produzir(CalendarioItem $item): RedirectResponse
+    {
+        if (! $item->podeProduzir()) {
+            return back()->with('aviso', 'Este tema já foi produzido ou foi tirado.');
+        }
+        $item->forceFill(['producao_pedida_em' => $item->producao_pedida_em ?? now()])->save();
+
+        return redirect()->route('calendario', ['mes' => $item->data->format('Y-m')])->with('ok', $this->textoPedido(1));
+    }
+
+    public function cancelarProducao(CalendarioItem $item): RedirectResponse
+    {
+        if ($item->producao_iniciada_em) {
+            return back()->with('aviso', 'A produção já começou. Quando chegar, você pode tirar em Para aprovar.');
+        }
+        $item->forceFill(['producao_pedida_em' => null])->save();
+
+        return back()->with('ok', 'Pedido de produção cancelado.');
+    }
+
+    /** "+ Novo tema": entra no calendário daqui e o kit traz para o calendario.yaml na sincronização. */
+    public function novoTema(Request $request): RedirectResponse
+    {
+        $dados = $request->validate([
+            'data' => 'required|date|after_or_equal:today',
+            'hora' => ['nullable', 'regex:/^\d{2}:\d{2}$/'],
+            'titulo' => 'required|string|min:3|max:200',
+            'ideia' => 'nullable|string|max:1000',
+            'publico' => 'nullable|array',
+            'publico.*' => 'in:'.implode(',', array_keys(\App\Models\Conteudo::PUBLICOS)),
+            'produzir' => 'nullable|boolean',
+        ], ['titulo.required' => 'Escreva o tema.', 'data.after_or_equal' => 'Escolha hoje ou um dia depois.']);
+
+        $marca = $request->attributes->get('marca');
+        $chave = $dados['data'];
+        for ($n = 2; $marca->calendario()->where('chave', $chave)->exists(); $n++) {
+            $chave = $dados['data'].'-'.$n;
+        }
+
+        $item = $marca->calendario()->create([
+            'chave' => $chave, 'data' => $dados['data'], 'hora' => $dados['hora'] ?? '11:40', 'titulo' => $dados['titulo'],
+            'ideia' => $dados['ideia'] ?? null, 'publico' => $dados['publico'] ?? [], 'estado' => 'tema_aprovado', 'origem' => 'central',
+        ]);
+        if ($request->boolean('produzir')) {
+            $item->forceFill(['producao_pedida_em' => now()])->save();
+        }
+
+        return redirect()->route('calendario', ['mes' => $item->data->format('Y-m')])
+            ->with('ok', $request->boolean('produzir') ? 'Tema criado. '.$this->textoPedido(1) : 'Tema criado no calendário.');
+    }
+
+    private function textoPedido(int $n): string
+    {
+        $quantos = $n === 1 ? '1 carrossel pedido' : "{$n} carrosséis pedidos";
+
+        return "{$quantos}. A produção começa na próxima sincronização (até 1 hora, das 8h às 20h, com o computador ligado) e você recebe um aviso quando ficar pronto.";
     }
 
     public function novaIdeia(Request $request): RedirectResponse

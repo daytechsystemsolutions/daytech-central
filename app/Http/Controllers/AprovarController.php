@@ -16,12 +16,18 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class AprovarController extends Controller
 {
-    public function index(Request $request): View|RedirectResponse
+    /** Lista por semana: o que espera você e o que já foi decidido e ainda não saiu. */
+    public function index(Request $request): View
     {
         $marca = $request->attributes->get('marca');
-        $primeiro = $marca->conteudos()->where('estado', 'aguardando')->orderBy('agendado_para')->first();
+        $conteudos = $marca->conteudos()->whereIn('estado', ['aguardando', 'ajuste', 'agendado'])
+            ->orderByRaw('agendado_para is null')->orderBy('agendado_para')->get();
 
-        return $primeiro ? redirect()->route('aprovar.ver', $primeiro) : view('aprovar.vazio');
+        return view('aprovar.lista', [
+            'semanas' => $conteudos->groupBy(fn (Conteudo $c) => $c->agendado_para?->startOfWeek(\Carbon\CarbonInterface::MONDAY)->toDateString() ?? 'sem-data'),
+            'esperando' => $conteudos->where('estado', 'aguardando')->count(),
+            'pedidos' => $marca->calendario()->whereNotNull('producao_pedida_em')->count(),
+        ]);
     }
 
     public function ver(Request $request, Conteudo $conteudo): View

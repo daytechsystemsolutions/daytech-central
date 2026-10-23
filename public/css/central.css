@@ -175,6 +175,15 @@ p { margin: 0; }
 .linha-numero { display: flex; align-items: center; gap: 10px; }
 .numero-espera { width: 34px; height: 34px; border-radius: 99px; background: var(--espera); color: var(--espera-claro); font-weight: 800; font-size: 17px; display: flex; align-items: center; justify-content: center; flex: none; }
 
+/* lista de Para aprovar e calendário por semana */
+.item-aprovar { display: flex; align-items: center; gap: 12px; padding: 12px; color: var(--tinta); text-decoration: none; }
+.item-aprovar .textos { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; flex: 1; min-width: 0; }
+.novo-tema summary { list-style: none; padding: 4px 14px; }
+.novo-tema summary::-webkit-details-marker { display: none; }
+.publicos { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0 16px; }
+.publicos legend { margin-bottom: 4px; }
+.campo input[type="date"], .campo input[type="time"], .campo input[type="datetime-local"] { padding: 0 10px; }
+
 /* ---------- computador ---------- */
 @media (min-width: 1024px) {
   .app { flex-direction: row; }

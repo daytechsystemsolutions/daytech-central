@@ -6,12 +6,33 @@
   </div>
   <p class="fraco">Toque num tema para trocar ou tirar antes da produção. A produção roda toda quinta e faz a semana seguinte.</p>
 
-  @forelse($semanas as $inicioSemana => $itens)
+  @foreach($semanas as $inicioSemana => $itens)
     @php
-      $ini = \Carbon\Carbon::parse($inicioSemana);
+      $ini = \Carbon\CarbonImmutable::parse($inicioSemana);
+      $fimSemana = $ini->addDays(6);
+      $passou = $fimSemana->lt(today());
+      $produziveis = $itens->filter(fn ($i) => $i->podeProduzir() && ! ($i->carrossel && isset($conteudos[$i->carrossel])));
+      $semPedido = $produziveis->whereNull('producao_pedida_em');
+      $diaMinimo = $ini->lt(today()) ? today()->toDateString() : $ini->toDateString();
     @endphp
-    <section class="secao">
-      <h2 class="rotulo">Semana de {{ $ini->format('d/m') }} a {{ $ini->copy()->addDays(6)->format('d/m') }}</h2>
+    @continue($passou && $itens->isEmpty())
+    <section class="secao semana" aria-label="Semana de {{ $ini->format('d/m') }} a {{ $fimSemana->format('d/m') }}">
+      <div class="titulo-com-botao">
+        <h2 class="rotulo">Semana de {{ $ini->format('d/m') }} a {{ $fimSemana->format('d/m') }}</h2>
+        @if(! $passou && $semPedido->count())
+          <form method="post" action="{{ route('calendario.produzir-semana', $ini->toDateString()) }}">
+            @csrf
+            <button type="submit" class="botao pequeno escuro">Produzir esta semana agora</button>
+          </form>
+        @elseif(! $passou && $produziveis->count())
+          <span class="pilula agendado">produção pedida</span>
+        @endif
+      </div>
+
+      @if($itens->isEmpty())
+        <p class="fraco">Nenhum tema nesta semana.</p>
+      @endif
+
       @foreach($itens as $item)
         @php
           $conteudo = $item->carrossel ? ($conteudos[$item->carrossel] ?? null) : null;
@@ -33,21 +54,46 @@
               <a class="botao escuro cheio" href="{{ route('aprovar.ver', $conteudo) }}">Ver e aprovar</a>
             @elseif($conteudo)
               <a class="botao cheio" href="{{ route('aprovar.ver', $conteudo) }}">Ver o carrossel</a>
+            @elseif($item->producao_pedida_em)
+              <p class="fraco">
+                @if($item->producao_iniciada_em)
+                  Em produção desde {{ $item->producao_iniciada_em->format('H\hi') }}. Quando ficar pronto, aparece em Para aprovar.
+                @else
+                  Produção pedida às {{ $item->producao_pedida_em->format('H\hi') }}. Começa na próxima sincronização (até 1 hora).
+                @endif
+              </p>
+              @if(! $item->producao_iniciada_em)
+                <form method="post" action="{{ route('calendario.cancelar-producao', $item) }}">
+                  @csrf
+                  <button type="submit" class="botao cheio">Cancelar o pedido</button>
+                </form>
+              @endif
             @elseif($item->podeMexer())
-              @if($item->decisao === 'tirar' || $item->decisao === 'trocar')
+              @if($item->decisao === 'tirar' || $item->estado === 'tirado')
                 <form method="post" action="{{ route('calendario.manter', $item) }}">
                   @csrf
-                  <button type="submit" class="botao cheio">Voltar ao tema original</button>
+                  <button type="submit" class="botao cheio">Voltar ao calendário</button>
                 </form>
               @else
-                <form method="post" action="{{ route('calendario.trocar', $item) }}" class="secao">
+                <form method="post" action="{{ route('calendario.produzir', $item) }}">
                   @csrf
-                  <div class="campo">
-                    <label for="troca-{{ $item->id }}">Trocar por qual tema?</label>
-                    <input id="troca-{{ $item->id }}" name="nota" type="text" required placeholder="Ex.: prazos do eSocial em dezembro">
-                  </div>
-                  <button type="submit" class="botao escuro cheio">Salvar troca</button>
+                  <button type="submit" class="botao escuro cheio">Produzir só este agora</button>
                 </form>
+                @if($item->decisao === 'trocar')
+                  <form method="post" action="{{ route('calendario.manter', $item) }}">
+                    @csrf
+                    <button type="submit" class="botao cheio">Voltar ao tema original</button>
+                  </form>
+                @else
+                  <form method="post" action="{{ route('calendario.trocar', $item) }}" class="secao">
+                    @csrf
+                    <div class="campo">
+                      <label for="troca-{{ $item->id }}">Trocar por qual tema?</label>
+                      <input id="troca-{{ $item->id }}" name="nota" type="text" required placeholder="Ex.: prazos do eSocial em dezembro">
+                    </div>
+                    <button type="submit" class="botao cheio">Salvar troca</button>
+                  </form>
+                @endif
                 <form method="post" action="{{ route('calendario.tirar', $item) }}">
                   @csrf
                   <button type="submit" class="botao cheio texto-erro">Tirar este tema</button>
@@ -57,10 +103,43 @@
           </div>
         </details>
       @endforeach
+
+      @if(! $passou)
+        <details class="cartao novo-tema">
+          <summary class="botao-link">+ Novo tema nesta semana</summary>
+          <form method="post" action="{{ route('calendario.novo') }}" class="cartao-corpo borda-topo">
+            @csrf
+            <div class="duas">
+              <div class="campo">
+                <label for="data-{{ $inicioSemana }}">Dia</label>
+                <input id="data-{{ $inicioSemana }}" name="data" type="date" required min="{{ $diaMinimo }}" max="{{ $fimSemana->toDateString() }}" value="{{ $diaMinimo }}">
+              </div>
+              <div class="campo">
+                <label for="hora-{{ $inicioSemana }}">Hora</label>
+                <input id="hora-{{ $inicioSemana }}" name="hora" type="time" value="11:40">
+              </div>
+            </div>
+            <div class="campo">
+              <label for="titulo-{{ $inicioSemana }}">Tema</label>
+              <input id="titulo-{{ $inicioSemana }}" name="titulo" type="text" required placeholder="Ex.: 5 erros no PGR que a fiscalização encontra">
+            </div>
+            <div class="campo">
+              <label for="ideia-{{ $inicioSemana }}">O que falar (opcional)</label>
+              <textarea id="ideia-{{ $inicioSemana }}" name="ideia" rows="2" placeholder="Pontos que não podem faltar, exemplo, chamada"></textarea>
+            </div>
+            <fieldset class="publicos">
+              <legend class="forte">Para quem</legend>
+              @foreach(\App\Models\Conteudo::PUBLICOS as $valor => $nome)
+                <label class="marcar"><input type="checkbox" name="publico[]" value="{{ $valor }}"> {{ ucfirst($nome) }}</label>
+              @endforeach
+            </fieldset>
+            <label class="marcar"><input type="checkbox" name="produzir" value="1" checked> Produzir agora</label>
+            <button type="submit" class="botao escuro cheio">Criar tema</button>
+          </form>
+        </details>
+      @endif
     </section>
-  @empty
-    <section class="vazio cartao"><p>Nenhum tema neste mês.</p></section>
-  @endforelse
+  @endforeach
 
   <section class="secao" aria-labelledby="ideias">
     <h2 id="ideias" class="secao-titulo">Ideias</h2>

@@ -80,7 +80,7 @@ class AprovacaoTest extends TestCase
         $usuario = $this->usuario();
 
         $this->actingAs($usuario)->get('/')->assertSee('conteúdo espera você');
-        $this->actingAs($usuario)->get('/aprovar')->assertRedirect("/aprovar/{$conteudo->id}");
+        $this->actingAs($usuario)->get('/aprovar')->assertOk()->assertSee('1 carrossel espera você')->assertSee('Semana de 02/11 a 08/11');
         $this->actingAs($usuario)->get("/aprovar/{$conteudo->id}")->assertOk()->assertSee('Aprovar e agendar')->assertSee('consultorias');
         $lamina = $conteudo->laminasAtuais()->first();
         $this->actingAs($usuario)->get("/aprovar/{$conteudo->id}/laminas/{$lamina->id}")->assertOk();
@@ -192,5 +192,46 @@ class AprovacaoTest extends TestCase
         $ideia = Marca::where('slug', 'mednext')->first()->ideias()->first();
         $this->actingAs($usuario)->post('/marcas/lupe/abrir');
         $this->actingAs($usuario)->delete("/ideias/{$ideia->id}")->assertNotFound();
+    }
+
+    public function test_produzir_semana_pedido_vai_para_o_kit_e_acaba_quando_o_carrossel_chega(): void
+    {
+        $this->semearCalendario();
+        $usuario = $this->usuario();
+
+        $this->actingAs($usuario)->post('/calendario/semana/2026-11-02/produzir')->assertSessionHas('ok');
+        $this->api('GET', '/pedidos')->assertOk()->assertJsonCount(1)->assertJsonFragment(['id' => '2026-11-03', 'iniciado_em' => null]);
+        $this->actingAs($usuario)->get('/calendario?mes=2026-11')->assertSee('produção pedida');
+
+        $this->api('POST', '/pedidos/2026-11-03/iniciar')->assertOk();
+        $this->actingAs($usuario)->get('/calendario?mes=2026-11')->assertSee('em produção');
+        $item = CalendarioItem::where('chave', '2026-11-03')->first();
+        $this->actingAs($usuario)->post("/calendario/{$item->id}/cancelar-producao")->assertSessionHas('aviso');
+
+        $this->api('POST', '/conteudos', $this->carrossel());
+        $this->api('GET', '/pedidos')->assertJsonCount(0);
+        $this->assertSame('produzido', $item->fresh()->estado);
+    }
+
+    public function test_novo_tema_na_central_com_produzir_agora(): void
+    {
+        $usuario = $this->usuario();
+        $dia = now()->addDays(3)->toDateString();
+
+        $this->actingAs($usuario)->post('/calendario/temas', ['data' => now()->subDay()->toDateString(), 'titulo' => 'Ontem'])->assertSessionHasErrors('data');
+        $this->actingAs($usuario)->post('/calendario/temas', ['data' => $dia, 'titulo' => '5 erros no PGR', 'publico' => ['consultoria'], 'produzir' => 1])
+            ->assertSessionHas('ok');
+        $this->actingAs($usuario)->post('/calendario/temas', ['data' => $dia, 'titulo' => 'Outro no mesmo dia']);
+
+        $this->api('GET', '/calendario/da-central')->assertJsonCount(2)->assertJsonFragment(['id' => $dia, 'titulo' => '5 erros no PGR'])
+            ->assertJsonFragment(['id' => $dia.'-2']);
+        $this->api('GET', '/pedidos')->assertJsonCount(1)->assertJsonFragment(['titulo' => '5 erros no PGR', 'publico' => ['consultoria']]);
+        $this->actingAs($usuario)->post('/calendario/temas', ['data' => $dia, 'titulo' => 'x', 'publico' => ['hacker']])->assertSessionHasErrors('publico.0');
+    }
+
+    public function test_semana_vazia_aparece_com_novo_tema(): void
+    {
+        $this->actingAs($this->usuario())->get('/calendario?mes='.now()->addMonths(2)->format('Y-m'))
+            ->assertSee('Nenhum tema nesta semana')->assertSee('+ Novo tema nesta semana');
     }
 }

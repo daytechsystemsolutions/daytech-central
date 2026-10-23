@@ -10,4 +10,7 @@ Route::middleware(['fabrica', 'throttle:120,1'])->prefix('fabrica/marcas/{marca}
     Route::post('/conteudos', [FabricaController::class, 'enviarConteudo']);
     Route::get('/conteudos/decisoes', [FabricaController::class, 'decisoesConteudos']);
     Route::get('/ideias', [FabricaController::class, 'ideias']);
+    Route::get('/pedidos', [FabricaController::class, 'pedidos']);
+    Route::post('/pedidos/{chave}/iniciar', [FabricaController::class, 'iniciarPedido']);
+    Route::get('/calendario/da-central', [FabricaController::class, 'temasDaCentral']);
 });

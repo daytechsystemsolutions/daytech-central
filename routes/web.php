@@ -23,6 +23,10 @@ Route::middleware(['auth', 'dois.fatores', 'marca.atual'])->group(function () {
     Route::get('/aprovar/{conteudo}/linkedin.pdf', [AprovarController::class, 'pdf'])->name('aprovar.pdf');
 
     Route::get('/calendario', [CalendarioController::class, 'index'])->name('calendario');
+    Route::post('/calendario/temas', [CalendarioController::class, 'novoTema'])->name('calendario.novo');
+    Route::post('/calendario/semana/{inicio}/produzir', [CalendarioController::class, 'produzirSemana'])->name('calendario.produzir-semana');
+    Route::post('/calendario/{item}/produzir', [CalendarioController::class, 'produzir'])->name('calendario.produzir');
+    Route::post('/calendario/{item}/cancelar-producao', [CalendarioController::class, 'cancelarProducao'])->name('calendario.cancelar-producao');
     Route::post('/calendario/{item}/trocar', [CalendarioController::class, 'trocar'])->name('calendario.trocar');
     Route::post('/calendario/{item}/tirar', [CalendarioController::class, 'tirar'])->name('calendario.tirar');
     Route::post('/calendario/{item}/manter', [CalendarioController::class, 'manter'])->name('calendario.manter');
