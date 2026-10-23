@@ -83,8 +83,12 @@ jobs:
             sleep 3
           done
           [ "$estado" = healthy ] || { docker logs central_app --tail 60; echo "::error::central_app não ficou pronto"; exit 1; }
+          docker ps --filter name=central_agendador --format '{{.Status}}' | grep -q Up || { docker logs central_agendador --tail 40; echo "::error::central_agendador não subiu"; exit 1; }
 
           docker exec central_app php artisan central:preparar
+          # Primeira vez: importa os posts do perfil e os números de todos, em segundo plano no agendador
+          # (não segura o deploy; o cadeado da coleta impede rodar junto com o horário).
+          docker exec -d central_agendador php artisan central:coletar tudo --todos --se-vazio
 
           # Porteiro: a configuração mora neste repo. Vale também para o site, então só troca se for válida,
           # e volta a anterior se o reload falhar.

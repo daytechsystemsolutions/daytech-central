@@ -26,6 +26,38 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # Agendador: mesma imagem, roda os horários de routes/console.php (coleta do Instagram). Sem portas, sem web.
+  agendador:
+    image: daytech-central:atual
+    container_name: central_agendador
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      AUTORUN_ENABLED: "false"
+    command: ["php", "/var/www/html/artisan", "schedule:work"]
+    healthcheck:
+      disable: true
+    depends_on:
+      app:
+        condition: service_healthy
+    volumes:
+      - central_storage:/var/www/html/storage
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+    networks:
+      - porteiro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 volumes:
   central_storage:
 
