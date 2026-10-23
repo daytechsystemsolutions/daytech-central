@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Atalhos do ambiente local da Central (Docker; não precisa de PHP na máquina).
+#   ./dev up            sobe em http://localhost:8380      ./dev down    para
+#   ./dev artisan ...   roda o artisan                     ./dev test    roda os testes
+#   ./dev composer ...  roda o composer                    ./dev logs    logs do app
+set -euo pipefail
+cd "$(dirname "$0")"
+IMG=serversideup/php:8.4-fpm-nginx-alpine
+rodar() { docker run --rm -i -u "$(id -u):$(id -g)" -v "$PWD:/var/www/html" -w /var/www/html -e HOME=/tmp --entrypoint "$1" "$IMG" "${@:2}"; }
+case "${1:-}" in
+  up) docker compose -f compose.dev.yml up -d --build && echo "→ http://localhost:8380" ;;
+  down) docker compose -f compose.dev.yml down ;;
+  logs) docker compose -f compose.dev.yml logs -f --tail=50 ;;
+  artisan) shift; rodar php artisan "$@" ;;
+  composer) shift; rodar composer "$@" ;;
+  test) shift; rodar php artisan test "$@" ;;
+  *) sed -n '2,6p' "$0" ;;
+esac

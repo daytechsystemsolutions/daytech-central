@@ -1,0 +1,34 @@
+# Servidor (VPS do site): atrás do porteiro, sem portas na máquina. Subido pelo deploy (.github/workflows/deploy.yml).
+services:
+  app:
+    build:
+      context: .
+      target: producao
+    image: daytech-central:atual
+    container_name: central_app
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - central_storage:/var/www/html/storage   # banco SQLite e logs: não apagar
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 512M
+    networks:
+      - porteiro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  central_storage:
+
+networks:
+  porteiro:
+    external: true

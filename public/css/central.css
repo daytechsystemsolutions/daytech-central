@@ -1,0 +1,145 @@
+/* Central DayTech: estilos das telas (desenho aprovado em 23/10/2026).
+   Celular primeiro: menu embaixo; a partir de 1024px o menu vai para a lateral. */
+@font-face {
+  font-family: "Figtree";
+  src: url("/fonts/figtree-latin.woff2") format("woff2");
+  font-weight: 400 800;
+  font-display: swap;
+}
+
+:root {
+  --fundo: #F4F5F7;
+  --cartao: #FFFFFF;
+  --tinta: #16202C;
+  --apagado: #5B6573;
+  --linha: #E2E6EB;
+  --borda-botao: #CDD3DA;
+  --acento: #1F5FBF;
+  --acento-claro: #E5EEFB;
+  --espera: #8A5300;
+  --espera-claro: #FFF1D6;
+  --ok: #17683F;
+  --ok-claro: #E1F3E8;
+  --erro: #A8261C;
+  --erro-claro: #FDE4E2;
+  --neutro: #46505D;
+  --neutro-claro: #EDEFF2;
+  --fonte: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--fundo); color: var(--tinta); font: 400 16px/1.5 var(--fonte); -webkit-text-size-adjust: 100%; }
+a { color: var(--acento); }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+
+/* ---------- estrutura ---------- */
+.app { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+.conteudo { flex: 1; width: 100%; max-width: 1100px; margin: 0 auto; padding: 8px 20px 104px; display: flex; flex-direction: column; gap: 22px; }
+.topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px 6px; max-width: 1100px; width: 100%; margin: 0 auto; }
+.rotulo { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--apagado); }
+.titulo-pagina { font-size: 22px; font-weight: 800; }
+.data { font-size: 15px; color: var(--apagado); }
+
+/* seletor de marca */
+.seletor { position: relative; }
+.seletor summary { list-style: none; display: flex; align-items: center; gap: 6px; min-height: 44px; font-size: 22px; font-weight: 800; cursor: pointer; }
+.seletor summary::-webkit-details-marker { display: none; }
+.seletor-lista { position: absolute; z-index: 20; top: 100%; left: 0; width: 250px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; box-shadow: 0 12px 32px rgba(22, 32, 44, 0.14); padding: 6px; display: flex; flex-direction: column; }
+.seletor-lista form { margin: 0; }
+.seletor-item { width: 100%; display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px; border: 0; border-radius: 10px; background: none; font: 600 16px var(--fonte); color: var(--tinta); cursor: pointer; text-align: left; }
+.seletor-item.atual { background: var(--acento-claro); color: var(--acento); font-weight: 700; }
+
+.icone-botao { width: 44px; height: 44px; border-radius: 12px; background: var(--cartao); border: 1px solid var(--linha); display: flex; align-items: center; justify-content: center; color: var(--tinta); }
+
+/* menu: embaixo no celular */
+.menu { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: var(--cartao); border-top: 1px solid var(--linha); padding: 6px 6px calc(10px + env(safe-area-inset-bottom, 0px)); }
+.menu a { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 52px; text-decoration: none; color: var(--apagado); font-size: 12px; font-weight: 600; }
+.menu a[aria-current="page"] { color: var(--acento); font-weight: 700; }
+.menu .so-lateral { display: none; }
+.menu-marca { display: none; }
+.selo { position: absolute; top: 4px; left: 54%; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 99px; background: var(--espera); color: #FFFFFF; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+
+/* ---------- peças ---------- */
+.cartao { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; }
+.cartao-corpo { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.linha-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-top: 1px solid var(--linha); }
+.linha-item .textos { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.forte { font-size: 15px; font-weight: 700; }
+.fraco { font-size: 14px; color: var(--apagado); }
+.secao { display: flex; flex-direction: column; gap: 10px; }
+.secao-titulo { font-size: 17px; font-weight: 800; }
+
+.pilula { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
+.pilula.espera { background: var(--espera-claro); color: var(--espera); }
+.pilula.agendado { background: var(--acento-claro); color: var(--acento); }
+.pilula.ok { background: var(--ok-claro); color: var(--ok); }
+.pilula.erro { background: var(--erro-claro); color: var(--erro); }
+.pilula.neutro { background: var(--neutro-claro); color: var(--neutro); }
+
+.botao { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 18px; border-radius: 12px; border: 1px solid var(--borda-botao); background: var(--cartao); color: var(--tinta); font: 700 15px var(--fonte); text-decoration: none; cursor: pointer; }
+.botao.escuro { background: var(--tinta); border-color: var(--tinta); color: #FFFFFF; }
+.botao.verde { background: var(--ok); border-color: var(--ok); color: #FFFFFF; min-height: 54px; font-size: 17px; font-weight: 800; }
+.botao.cheio { width: 100%; }
+.botao:disabled { background: #E7EAEE; border-color: #E7EAEE; color: var(--apagado); cursor: not-allowed; }
+.botao-link { min-height: 44px; padding: 0 4px; border: 0; background: none; font: 700 15px var(--fonte); color: var(--acento); cursor: pointer; }
+
+.aviso { display: flex; align-items: flex-start; gap: 10px; border-radius: 12px; padding: 12px 14px; font-size: 15px; font-weight: 600; }
+.aviso.ok { background: var(--ok-claro); color: var(--ok); }
+.aviso.atencao { background: var(--espera-claro); color: var(--espera); }
+.aviso.erro { background: var(--erro-claro); color: var(--erro); }
+
+.destaque-espera { background: var(--espera-claro); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.destaque-espera h2 { font-size: 20px; font-weight: 800; color: #4A2D00; }
+.destaque-espera p { font-size: 15px; color: #5C3A00; }
+
+.vazio { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 48px 24px; }
+.vazio .circulo { width: 64px; height: 64px; border-radius: 99px; background: var(--ok-claro); color: var(--ok); display: flex; align-items: center; justify-content: center; }
+.vazio p { max-width: 34ch; color: var(--apagado); }
+
+.marca-cabeca { display: flex; align-items: center; gap: 12px; padding: 16px; }
+.marca-sigla { width: 44px; height: 44px; flex: none; border-radius: 12px; color: #FFFFFF; font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; background: var(--neutro); }
+.marca-sigla.cor-mednext { background: var(--acento); }
+.cartao.pontilhado { border-style: dashed; border-color: var(--borda-botao); }
+
+/* ---------- formulários e login ---------- */
+.campo { display: flex; flex-direction: column; gap: 6px; }
+.campo label { font-size: 15px; font-weight: 700; }
+.campo input { min-height: 50px; padding: 0 14px; border: 1px solid var(--borda-botao); border-radius: 12px; font: 400 16px var(--fonte); color: var(--tinta); background: var(--cartao); width: 100%; }
+.campo input.codigo { font-size: 22px; letter-spacing: 0.3em; text-align: center; font-variant-numeric: tabular-nums; }
+.erro-campo { font-size: 14px; color: var(--erro); font-weight: 600; }
+.marcar { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 15px; }
+.marcar input { width: 20px; height: 20px; }
+
+.tela-entrada { min-height: 100vh; min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 24px 20px; }
+.caixa-entrada { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 22px; }
+.caixa-entrada form { display: flex; flex-direction: column; gap: 16px; }
+.marca-daytech { display: flex; flex-direction: column; gap: 4px; }
+.marca-daytech strong { font-size: 26px; font-weight: 800; }
+
+.qr { background: #FFFFFF; border: 1px solid var(--linha); border-radius: 14px; padding: 16px; display: flex; justify-content: center; }
+.qr svg { width: 200px; height: 200px; }
+.codigos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; font: 600 15px/1.3 ui-monospace, "SFMono-Regular", Menlo, monospace; }
+.chave { font: 700 18px/1.4 ui-monospace, "SFMono-Regular", Menlo, monospace; letter-spacing: 0.04em; background: var(--fundo); border-radius: 10px; padding: 10px 12px; word-break: break-all; }
+@media (max-width: 420px) { .codigos { grid-template-columns: minmax(0, 1fr); } }
+.codigos li { background: var(--fundo); border-radius: 8px; padding: 8px 10px; text-align: center; }
+.passos { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 8px; font-size: 15px; }
+
+.sair { margin: 0; }
+
+/* ---------- computador ---------- */
+@media (min-width: 1024px) {
+  .app { flex-direction: row; }
+  .menu { position: sticky; top: 0; align-self: flex-start; height: 100vh; width: 248px; flex: none; display: flex; flex-direction: column; gap: 4px; padding: 24px 16px; border-top: 0; border-right: 1px solid var(--linha); }
+  .menu a { flex-direction: row; justify-content: flex-start; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 10px; font-size: 15px; color: var(--neutro); }
+  .menu a[aria-current="page"] { background: var(--acento-claro); }
+  .menu .so-lateral { display: flex; }
+  .menu-marca { display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; }
+  .selo { position: static; margin-left: auto; min-width: 22px; height: 22px; font-size: 12px; }
+  .principal { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .conteudo { padding: 8px 32px 48px; }
+  .topo { padding: 28px 32px 6px; }
+  .topo .so-celular { display: none; }
+}

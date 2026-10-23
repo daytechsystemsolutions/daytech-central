@@ -1,0 +1,108 @@
+name: Deploy da Central
+
+# Push na main = publicar em https://central.daytechsolutions.com.br (VPS do site, atrás do porteiro).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency: deploy-central
+
+env:
+  VPS_HOST: 187.77.232.119
+  VPS_USER: mednext
+  PASTA: apps/daytech-central
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: pdo_sqlite
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: cp .env.example .env && php artisan key:generate
+      - run: php artisan test
+
+  deploy:
+    needs: testes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Chave SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.CENTRAL_SSH_KEY }}
+
+      - name: Servidor conhecido
+        # Chave do servidor fixa (secret), para não confiar em qualquer servidor que responda nesse IP.
+        run: mkdir -p ~/.ssh && printf '%s\n' "${{ secrets.CENTRAL_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+
+      - name: Enviar o código
+        run: |
+          ssh "$VPS_USER@$VPS_HOST" "mkdir -p ~/$PASTA"
+          rsync -az --delete \
+            --exclude .git --exclude .env --exclude vendor --exclude node_modules \
+            --exclude 'storage/logs/*' --exclude 'storage/banco/*' \
+            --exclude 'storage/framework/sessions/*' --exclude 'storage/framework/views/*' \
+            --exclude 'storage/framework/cache/data/*' \
+            ./ "$VPS_USER@$VPS_HOST:$PASTA/"
+
+      - name: Subir no servidor
+        run: |
+          ssh "$VPS_USER@$VPS_HOST" PASTA="$PASTA" bash -s <<'FIM'
+          set -euo pipefail
+          cd ~/"$PASTA"
+
+          # .env do servidor: criado uma vez (com chave nova) e mantido entre deploys.
+          if [ ! -f .env ]; then
+            cp .env.example .env
+            sed -i \
+              -e 's|^APP_ENV=.*|APP_ENV=production|' \
+              -e 's|^APP_DEBUG=.*|APP_DEBUG=false|' \
+              -e 's|^APP_URL=.*|APP_URL=https://central.daytechsolutions.com.br|' \
+              -e "s|^APP_KEY=.*|APP_KEY=base64:$(openssl rand -base64 32)|" \
+              -e 's|^LOG_LEVEL=.*|LOG_LEVEL=warning|' .env
+            printf 'SESSION_SECURE_COOKIE=true\n' >> .env
+            chmod 600 .env
+            echo "✓ .env criado"
+          fi
+
+          docker network inspect porteiro > /dev/null
+          docker compose -f compose.producao.yml build
+          docker compose -f compose.producao.yml up -d
+
+          echo "Esperando o app ficar pronto..."
+          for i in $(seq 1 30); do
+            estado=$(docker inspect -f '{{.State.Health.Status}}' central_app 2>/dev/null || echo "?")
+            [ "$estado" = healthy ] && break
+            sleep 3
+          done
+          [ "$estado" = healthy ] || { docker logs central_app --tail 60; echo "::error::central_app não ficou pronto"; exit 1; }
+
+          docker exec central_app php artisan central:preparar
+
+          # Porteiro: a configuração mora neste repo. Vale também para o site, então só troca se for válida,
+          # e volta a anterior se o reload falhar.
+          docker run --rm -v "$PWD/porteiro:/etc/caddy:ro" caddy:2.10-alpine caddy validate --config /etc/caddy/Caddyfile
+          cp ~/porteiro/Caddyfile ~/porteiro/Caddyfile.anterior
+          cp porteiro/Caddyfile ~/porteiro/Caddyfile
+          if ! docker exec porteiro_caddy caddy reload --config /etc/caddy/Caddyfile; then
+            cp ~/porteiro/Caddyfile.anterior ~/porteiro/Caddyfile
+            docker exec porteiro_caddy caddy reload --config /etc/caddy/Caddyfile
+            echo "::error::Caddyfile novo recusado; o anterior foi mantido"; exit 1
+          fi
+          docker image prune -f > /dev/null 2>&1 || true
+          FIM
+
+      - name: Conferir no ar
+        run: |
+          for i in $(seq 1 12); do
+            curl -fsS -o /dev/null https://central.daytechsolutions.com.br/up && { echo "✓ no ar"; exit 0; }
+            sleep 5
+          done
+          echo "::error::https://central.daytechsolutions.com.br/up não respondeu"; exit 1

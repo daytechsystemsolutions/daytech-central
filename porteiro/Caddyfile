@@ -7,11 +7,11 @@ mednextsst.com, www.mednextsst.com {
     reverse_proxy mednext_site_nginx_prod:80
 }
 
-# Central DayTech (repo daytech-central). Até a etapa 1, só uma página de aviso.
+# Central DayTech (este repo, container central_app). O deploy copia este arquivo para ~/porteiro e recarrega.
 central.daytechsolutions.com.br {
     header {
         Strict-Transport-Security "max-age=63072000"
-        X-Robots-Tag "noindex, nofollow"
+        -Server
     }
-    respond "Central DayTech: em construção." 200
+    reverse_proxy central_app:8080
 }

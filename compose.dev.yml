@@ -1,0 +1,24 @@
+# Ambiente local: ./dev up → http://localhost:8380
+services:
+  app:
+    build:
+      context: .
+      target: dev
+      args:
+        USER_ID: ${UID:-1000}
+        GROUP_ID: ${GID:-1000}
+    container_name: central_dev
+    ports:
+      - "8380:8080"
+    volumes:
+      - ./:/var/www/html
+    environment:
+      AUTORUN_ENABLED: "true"
+      AUTORUN_LARAVEL_MIGRATION: "true"
+      AUTORUN_LARAVEL_STORAGE_LINK: "false"
+      # Sem cache de config/rotas no local: o cache vai para a pasta montada e os testes passariam a usar o banco local.
+      AUTORUN_LARAVEL_OPTIMIZE: "false"
+      AUTORUN_LARAVEL_CONFIG_CACHE: "false"
+      AUTORUN_LARAVEL_ROUTE_CACHE: "false"
+      AUTORUN_LARAVEL_VIEW_CACHE: "false"
+      AUTORUN_LARAVEL_EVENT_CACHE: "false"
