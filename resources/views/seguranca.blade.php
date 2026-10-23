@@ -1,5 +1,6 @@
 <x-layouts.app titulo="Segurança">
-  <h1 class="titulo-pagina">Segurança</h1>
+  <span class="sobretitulo">Sua conta</span>
+  <h1 class="titulo-pagina">Segurança.</h1>
 
   @if(! $confirmado && ! $pendente)
     <section class="cartao cartao-corpo">

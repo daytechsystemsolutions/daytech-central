@@ -6,16 +6,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>{{ $titulo ?? 'Central' }} · Central DayTech</title>
-<link rel="preload" href="/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/central.css?v=4">
+<link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/central.css?v=5">
 <script src="/js/central.js?v=1" defer></script>
 </head>
 <body>
 <div class="app">
   <nav class="menu" aria-label="Menu">
     <div class="menu-marca">
+      <x-logo-marca :marca="$marcaAtual"/>
       <span class="rotulo">Central DayTech</span>
-      <span class="forte">{{ $marcaAtual?->nome }}</span>
     </div>
     <a href="{{ route('inicio') }}" @if(request()->routeIs('inicio')) aria-current="page" @endif><x-icone nome="inicio"/>Início</a>
     <a href="{{ route('aprovar') }}" @if(request()->routeIs('aprovar')) aria-current="page" @endif><x-icone nome="aprovar"/>Aprovar</a>
@@ -27,11 +28,11 @@
 
   <div class="principal">
     <header class="topo">
-      <div>
-        <span class="rotulo">Central DayTech</span>
+      <div class="topo-marca">
+        <x-logo-marca :marca="$marcaAtual"/>
         @if($marcas->count() > 1)
           <details class="seletor">
-            <summary>{{ $marcaAtual?->nome }} <x-icone nome="seta-baixo" tamanho="18"/></summary>
+            <summary>Central DayTech · {{ $marcaAtual?->nome }} <x-icone nome="seta-baixo" tamanho="14"/></summary>
             <div class="seletor-lista">
               @foreach($marcas as $m)
                 <form method="post" action="{{ route('marcas.escolher', $m) }}">
@@ -45,7 +46,7 @@
             </div>
           </details>
         @else
-          <div class="titulo-pagina">{{ $marcaAtual?->nome }}</div>
+          <span class="rotulo">Central DayTech</span>
         @endif
       </div>
       <a class="icone-botao so-celular" href="{{ route('marcas') }}" aria-label="Marcas e segurança"><x-icone nome="marcas" tamanho="20"/></a>

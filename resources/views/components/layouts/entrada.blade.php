@@ -6,15 +6,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>{{ $titulo }} · Central DayTech</title>
-<link rel="preload" href="/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/central.css?v=2">
+<link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/central.css?v=5">
 </head>
 <body>
 <main class="tela-entrada">
   <div class="caixa-entrada">
     <div class="marca-daytech">
-      <span class="rotulo">DayTech</span>
-      <strong>Central</strong>
+      <img class="logo-marca" src="/img/marcas/mednext.png" alt="MedNext SST" height="22">
+      <span class="sobretitulo">Central DayTech</span>
+      <h1 class="titulo-pagina">{{ $titulo }}.</h1>
     </div>
     {{ $slot }}
   </div>

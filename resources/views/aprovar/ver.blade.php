@@ -6,7 +6,7 @@
 
   <div class="cabeca-aprovar">
     <div class="secao">
-      <span class="rotulo">Para aprovar @if($total > 1)· {{ $posicao }} de {{ $total }}@endif</span>
+      <span class="sobretitulo">Para aprovar @if($total > 1)· {{ $posicao }} de {{ $total }}@endif</span>
       <h1 class="titulo-pagina">{{ $conteudo->titulo }}</h1>
       <span class="fraco">{{ $laminas->count() }} lâminas · versão {{ $conteudo->versao }} · <span class="pilula {{ $classe }}">{{ $rotulo }}</span></span>
     </div>
@@ -25,14 +25,14 @@
   <div class="aprovar-grade">
     <section class="laminas" aria-label="Lâminas">
       @foreach($laminas as $l)
-        <a class="lamina" href="{{ route('aprovar.lamina', [$conteudo, $l]) }}" target="_blank" rel="noopener">
-          <img src="{{ route('aprovar.lamina', [$conteudo, $l]) }}" alt="Lâmina {{ $l->ordem }} de {{ $laminas->count() }}" loading="lazy" width="1080" height="1350">
+        <a class="lamina" href="{{ route('aprovar.lamina', [$conteudo, $l, 'v' => substr((string) $conteudo->hash_laminas, 0, 12)]) }}" target="_blank" rel="noopener">
+          <img src="{{ route('aprovar.lamina', [$conteudo, $l, 'v' => substr((string) $conteudo->hash_laminas, 0, 12)]) }}" alt="Lâmina {{ $l->ordem }} de {{ $laminas->count() }}" loading="lazy" width="1080" height="1350">
         </a>
       @endforeach
     </section>
 
     <aside class="aprovar-lado">
-      <div class="cartao">
+      <div class="cartao forte">
         <div class="linha-item primeira"><div class="textos"><span class="forte">{{ $quando ? ucfirst($quando) : 'Sem data no calendário' }}</span></div></div>
         <div class="linha-item"><div class="textos"><span class="fraco">Instagram (automático) · LinkedIn (você posta)</span></div></div>
         @if($conteudo->publico)

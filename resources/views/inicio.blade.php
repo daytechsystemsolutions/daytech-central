@@ -3,17 +3,15 @@
 
   @if($esperando->count())
     <section class="destaque-espera" aria-labelledby="esperando">
-      <div class="linha-numero">
-        <span class="numero-espera">{{ $esperando->count() }}</span>
-        <h1 id="esperando">{{ $esperando->count() === 1 ? 'conteúdo espera você' : 'conteúdos esperam você' }}</h1>
-      </div>
+      <span class="rotulo">Para aprovar</span>
+      <h1 id="esperando">{{ $esperando->count() === 1 ? '1 conteúdo espera você.' : $esperando->count().' conteúdos esperam você.' }}</h1>
       <p>{{ $esperando->pluck('titulo')->implode(' · ') }}</p>
       <a class="botao escuro cheio" href="{{ route('aprovar') }}">Ver e aprovar <x-icone nome="seta-direita" tamanho="18"/></a>
     </section>
   @else
     <section class="vazio cartao" aria-labelledby="nada-esperando">
       <span class="circulo"><x-icone nome="certo" tamanho="30"/></span>
-      <h1 id="nada-esperando" class="secao-titulo">Nada esperando você</h1>
+      <h1 id="nada-esperando" class="secao-titulo">Nada esperando você.</h1>
       <p>Quando a produção de quinta terminar, os carrosséis de {{ $marca?->nome }} aparecem aqui para você aprovar.</p>
     </section>
   @endif
@@ -21,7 +19,7 @@
   @if($proximos->count())
     <section class="secao" aria-labelledby="proximos">
       <div class="titulo-com-botao">
-        <h2 id="proximos" class="secao-titulo">Próximos posts</h2>
+        <h2 id="proximos" class="secao-titulo">Próximos posts.</h2>
         <a href="{{ route('calendario') }}" class="forte">Calendário</a>
       </div>
       @foreach($proximos as $item)
@@ -38,7 +36,7 @@
 
   @if($ultimo)
     <section class="secao" aria-labelledby="ultimo">
-      <h2 id="ultimo" class="secao-titulo">Último publicado</h2>
+      <h2 id="ultimo" class="secao-titulo">Último publicado.</h2>
       <a class="cartao cartao-corpo link-cartao" href="{{ route('publicados') }}">
         <span class="forte">{{ $ultimo->titulo }}</span>
         <span class="fraco">{{ ucfirst($ultimo->publicado_em?->locale('pt_BR')->translatedFormat('l, d/m') ?? '') }}</span>

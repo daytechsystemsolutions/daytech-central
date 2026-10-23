@@ -1,5 +1,6 @@
 <x-layouts.app titulo="Publicados">
-  <h1 class="titulo-pagina">Publicados</h1>
+  <span class="sobretitulo">Instagram</span>
+  <h1 class="titulo-pagina">Publicados.</h1>
 
   @forelse($publicados as $p)
     <article class="cartao cartao-corpo">
@@ -7,7 +8,7 @@
         @php
           $capa = $p->laminasAtuais()->first();
         @endphp
-        @if($capa)<img class="capa" src="{{ route('aprovar.lamina', [$p, $capa]) }}" alt="" width="72" height="90">@endif
+        @if($capa)<img class="capa" src="{{ route('aprovar.lamina', [$p, $capa, 'v' => substr((string) $p->hash_laminas, 0, 12)]) }}" alt="" width="72" height="90">@endif
         <div class="textos">
           <span class="forte">{{ $p->titulo }}</span>
           <span class="fraco">{{ ucfirst($p->publicado_em ? $p->publicado_em->locale('pt_BR')->translatedFormat('l, d/m').' às '.$p->publicado_em->format('H\hi') : '') }}</span>

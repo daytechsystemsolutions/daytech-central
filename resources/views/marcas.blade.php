@@ -1,6 +1,7 @@
 <x-layouts.app titulo="Marcas">
   <div class="secao">
-    <h1 class="titulo-pagina">Marcas</h1>
+    <span class="sobretitulo">Central DayTech</span>
+    <h1 class="titulo-pagina">Marcas.</h1>
     <p class="fraco">Cada marca tem o Instagram dela. A postagem automática liga quando a postagem pela Central estiver pronta.</p>
   </div>
 

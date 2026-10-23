@@ -1,7 +1,7 @@
 <x-layouts.app titulo="Calendário">
   <div class="mes-cabeca">
     <a class="icone-botao" href="{{ route('calendario', ['mes' => $mes->subMonth()->format('Y-m')]) }}" aria-label="Mês anterior"><x-icone nome="voltar" tamanho="18"/></a>
-    <h1 class="titulo-pagina">{{ ucfirst($mes->locale('pt_BR')->translatedFormat('F Y')) }}</h1>
+    <h1 class="titulo-pagina">{{ $mes->locale('pt_BR')->translatedFormat('F') }} <span class="marca-texto">{{ $mes->format('Y') }}.</span></h1>
     <a class="icone-botao" href="{{ route('calendario', ['mes' => $mes->addMonth()->format('Y-m')]) }}" aria-label="Próximo mês"><x-icone nome="seta-direita" tamanho="18"/></a>
   </div>
   <p class="fraco">Toque num tema para trocar ou tirar antes da produção. A produção roda toda quinta e faz a semana seguinte.</p>
@@ -38,7 +38,7 @@
           $conteudo = $item->carrossel ? ($conteudos[$item->carrossel] ?? null) : null;
           [$rotulo, $classe] = $item->situacao($conteudo);
         @endphp
-        <details class="cartao item-cal">
+        <details class="cartao item-cal {{ $conteudo && $conteudo->estado === 'aguardando' ? 'forte' : '' }}">
           <summary class="item-cal-linha">
             <span class="dia"><span class="rotulo">{{ $item->data->locale('pt_BR')->translatedFormat('D') }}</span><strong>{{ $item->data->format('d') }}</strong></span>
             <span class="textos">
@@ -144,14 +144,14 @@
   <section class="secao" aria-labelledby="ideias">
     <h2 id="ideias" class="secao-titulo">Ideias</h2>
     <p class="fraco">Anote aqui o que vier à cabeça. A produção de quinta olha esta lista antes de escolher temas novos.</p>
-    <form method="post" action="{{ route('ideias.criar') }}" class="cartao cartao-corpo">
+    <form method="post" action="{{ route('ideias.criar') }}" class="destaque-espera">
       @csrf
       <div class="campo">
         <label for="ideia-texto">Nova ideia</label>
         <textarea id="ideia-texto" name="texto" rows="2" required placeholder="Ex.: carrossel sobre a nova NR-1 e riscos psicossociais"></textarea>
         @error('texto')<span class="erro-campo">{{ $message }}</span>@enderror
       </div>
-      <button type="submit" class="botao escuro">Guardar ideia</button>
+      <button type="submit" class="botao">Guardar ideia</button>
     </form>
     @foreach($ideias as $ideia)
       <div class="cartao linha-item primeira">
