@@ -14,6 +14,7 @@ Route::middleware(['auth', 'dois.fatores', 'marca.atual'])->group(function () {
     Route::get('/', [PainelController::class, 'inicio'])->name('inicio');
     Route::get('/resultados', [ResultadosController::class, 'index'])->name('resultados');
     Route::get('/resultados/aprendemos', [ResultadosController::class, 'aprendizados'])->name('resultados.aprendizados');
+    Route::post('/regras/{regra}/alternar', [ResultadosController::class, 'alternarRegra'])->name('regras.alternar');
     Route::get('/resultados/{post}', [ResultadosController::class, 'post'])->name('resultados.post');
     Route::get('/resultados/{post}/capa', [ResultadosController::class, 'capa'])->name('resultados.capa');
     Route::redirect('/publicados', '/resultados');

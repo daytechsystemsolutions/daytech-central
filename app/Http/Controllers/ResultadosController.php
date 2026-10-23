@@ -60,7 +60,19 @@ class ResultadosController extends Controller
     {
         $marca = $request->attributes->get('marca');
 
-        return view('resultados.aprendizados', $aprendizados->daMarca($marca) + ['seguidores' => $marca->seguidores()]);
+        return view('resultados.aprendizados', $aprendizados->daMarca($marca) + [
+            'seguidores' => $marca->seguidores(),
+            'regras' => $marca->regras()->where('vigente', true)->orderByRaw("case tipo when 'faca' then 0 when 'evite' then 1 else 2 end")->get(),
+        ]);
+    }
+
+    /** Liga ou desliga uma regra (a produção só segue as ligadas). */
+    public function alternarRegra(Request $request, \App\Models\Regra $regra): \Illuminate\Http\RedirectResponse
+    {
+        abort_unless($regra->marca_id === $request->attributes->get('marca')->id, 404);
+        $regra->forceFill(['ativa' => ! $regra->ativa])->save();
+
+        return back()->with('ok', $regra->ativa ? 'Regra ligada.' : 'Regra desligada: a produção não segue mais esta.');
     }
 
     public function capa(Request $request, Post $post): StreamedResponse

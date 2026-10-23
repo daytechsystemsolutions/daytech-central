@@ -65,19 +65,25 @@
         <h2 class="secao-titulo">Como foi feito.</h2>
         @if($post->como_foi_feito)
           <div class="linha-pilulas">
-            @foreach($post->como_foi_feito as $chave => $valor)
-              @if(is_string($valor) && $valor !== '')<span class="pilula agendado">{{ $valor }}</span>@endif
+            @foreach(['pilar', 'publico_principal', 'formato', 'chamada'] as $campo)
+              @if(! empty($post->como_foi_feito[$campo]))<span class="pilula agendado">{{ \App\Services\Resultados\Rotulos::de($post->como_foi_feito[$campo]) }}</span>@endif
             @endforeach
+            @if(! empty($post->como_foi_feito['tema']))<span class="pilula neutro">tema: {{ $post->como_foi_feito['tema'] }}</span>@endif
             @if($post->como_foi_feito_estimado)<span class="pilula neutro">estimado pela IA</span>@endif
           </div>
         @else
-          <p class="fraco">A IA classifica cada post (pilar, público, formato, chamada final) na próxima etapa.</p>
+          <p class="fraco">A IA classifica este post (pilar, público, formato, chamada final) na próxima sincronização.</p>
         @endif
       </section>
 
       <section class="destaque-espera">
         <span class="rotulo">Leitura do Claude</span>
-        <p>A leitura (o que deu certo e o que testar no próximo) aparece aqui no 7º dia do post, na etapa da IA.</p>
+        @if($post->leitura)
+          <p class="texto-longo">{{ $post->leitura }}</p>
+          <span class="fraco pequeno">Escrita em {{ $post->leitura_em->format('d/m') }}.</span>
+        @else
+          <p>A leitura (o que deu certo e o que testar no próximo) aparece aqui quando a nota fechar, no 7º dia do post.</p>
+        @endif
       </section>
 
       <section class="secao">

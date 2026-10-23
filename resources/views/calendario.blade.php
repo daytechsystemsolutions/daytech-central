@@ -43,10 +43,14 @@
             <span class="dia"><span class="rotulo">{{ $item->data->locale('pt_BR')->translatedFormat('D') }}</span><strong>{{ $item->data->format('d') }}</strong></span>
             <span class="textos">
               <span class="forte {{ $rotulo === 'tirado' ? 'riscado' : '' }}">{{ $item->titulo }}</span>
-              <span class="linha-pilulas"><span class="pilula {{ $classe }}">{{ $rotulo }}</span><span class="fraco">{{ \App\Models\Conteudo::publicoEmTexto($item->publico) }}</span></span>
+              <span class="linha-pilulas"><span class="pilula {{ $classe }}">{{ $rotulo }}</span>
+                @if($item->sugerido_ia)<span class="pilula selo-ia">sugerido pela IA</span>@endif
+                @if($item->teste)<span class="pilula atencao">teste</span>@endif
+                <span class="fraco">{{ \App\Models\Conteudo::publicoEmTexto($item->publico) }}</span></span>
             </span>
           </summary>
           <div class="cartao-corpo borda-topo">
+            @if($item->motivo)<p class="motivo-ia"><strong>Por que a IA sugeriu:</strong> {{ $item->motivo }}</p>@endif
             @if($item->ideia)<p class="fraco">{{ $item->ideia }}</p>@endif
             @if($item->decisao === 'trocar' && $item->nota)<p class="fraco">Troca pedida: {{ $item->nota }}</p>@endif
 

@@ -7,10 +7,24 @@
     <a class="icone-botao" href="{{ route('resultados') }}" aria-label="Voltar para Resultados"><x-icone nome="voltar" tamanho="18"/></a>
   </div>
 
-  <section class="destaque-espera">
-    <span class="rotulo">O que a produção segue agora</span>
-    <p>As regras (com o número que sustenta cada uma) aparecem aqui quando a IA começar a ler os resultados, na próxima etapa.
-      {{ $vale ? 'Já há posts suficientes para as regras valerem.' : 'Com menos de 10 posts com nota, são só pistas.' }}</p>
+  <section class="destaque-espera" aria-labelledby="regras">
+    <span class="rotulo" id="regras">O que a produção segue agora</span>
+    @forelse($regras as $r)
+      <div class="regra {{ $r->ativa ? '' : 'desligada' }}">
+        <span class="pilula {{ $r->tipo === 'evite' ? 'erro' : ($r->tipo === 'teste' ? 'atencao' : 'espera') }}">{{ ['faca' => 'fazer', 'evite' => 'evitar', 'teste' => 'testar'][$r->tipo] }}</span>
+        <span class="textos">
+          <span class="forte">{{ $r->texto }}</span>
+          @if($r->evidencia)<span class="fraco">{{ $r->evidencia }}</span>@endif
+        </span>
+        <form method="post" action="{{ route('regras.alternar', $r) }}">
+          @csrf
+          <button type="submit" class="botao pequeno">{{ $r->ativa ? 'Desligar' : 'Ligar' }}</button>
+        </form>
+      </div>
+    @empty
+      <p>As regras aparecem aqui depois da primeira análise da quinta (o Claude lê os resultados e escreve o que funciona).</p>
+    @endforelse
+    <span class="fraco">{{ $vale ? 'Com '.$total.' posts com nota, as regras já valem.' : 'Com menos de 10 posts com nota, são só pistas: a IA sugere, mas não troca temas sozinha.' }}</span>
   </section>
 
   @foreach($blocos as $b)

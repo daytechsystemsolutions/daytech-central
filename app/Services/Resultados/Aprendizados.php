@@ -25,7 +25,7 @@ class Aprendizados
             $p->publicado_em->hour >= 12 && $p->publicado_em->hour < 18 => 'Tarde (12h às 18h)',
             default => 'Noite (18h às 5h)',
         };
-        $atributo = fn (string $campo) => fn (Post $p) => $p->como_foi_feito[$campo] ?? null;
+        $atributo = fn (string $campo) => fn (Post $p) => isset($p->como_foi_feito[$campo]) ? Rotulos::de($p->como_foi_feito[$campo]) : null;
 
         return [
             'total' => $posts->count(),
@@ -37,6 +37,7 @@ class Aprendizados
                 $this->bloco('Por pilar', $posts, $atributo('pilar')),
                 $this->bloco('Por público', $posts, $atributo('publico_principal')),
                 $this->bloco('Por chamada final', $posts, $atributo('chamada')),
+                $this->bloco('Por formato do conteúdo', $posts, $atributo('formato')),
             ])),
             'sem_classificacao' => $posts->every(fn (Post $p) => empty($p->como_foi_feito)),
         ];

@@ -13,11 +13,11 @@ class Post extends Model
     protected $table = 'posts';
 
     protected $fillable = ['marca_id', 'ig_id', 'conteudo_id', 'tipo_midia', 'legenda', 'permalink', 'publicado_em',
-        'capa_caminho', 'como_foi_feito', 'como_foi_feito_estimado', 'metricas_em', 'sem_numeros', 'nota', 'nota_partes', 'nota_fechada_em'];
+        'capa_caminho', 'como_foi_feito', 'como_foi_feito_estimado', 'metricas_em', 'sem_numeros', 'nota', 'nota_partes', 'nota_fechada_em', 'leitura', 'leitura_em'];
 
     protected function casts(): array
     {
-        return ['publicado_em' => 'datetime', 'metricas_em' => 'datetime', 'como_foi_feito' => 'array', 'como_foi_feito_estimado' => 'boolean', 'sem_numeros' => 'boolean', 'nota_partes' => 'array', 'nota_fechada_em' => 'datetime'];
+        return ['publicado_em' => 'datetime', 'metricas_em' => 'datetime', 'como_foi_feito' => 'array', 'como_foi_feito_estimado' => 'boolean', 'sem_numeros' => 'boolean', 'nota_partes' => 'array', 'nota_fechada_em' => 'datetime', 'leitura_em' => 'datetime'];
     }
 
     public function marca(): BelongsTo

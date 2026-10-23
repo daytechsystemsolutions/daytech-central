@@ -271,6 +271,17 @@ p { margin: 0; }
 .evolucao { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .evolucao .indicador strong { font-size: 22px; }
 
+/* rota automática */
+.regra { display: flex; align-items: flex-start; gap: 10px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.14); }
+.regra .textos { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.destaque-espera .regra .forte { color: #FFFFFF; }
+.destaque-espera .regra .fraco { color: #CBD5E1; font-size: 13px; display: block; margin-top: 2px; }
+.regra.desligada .textos { opacity: 0.5; text-decoration: line-through; }
+.destaque-espera .regra .botao { background: transparent; color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: none; min-height: 34px; }
+.destaque-espera .regra .pilula { flex: none; }
+.selo-ia { background: var(--marinho); color: #FFFFFF; }
+.motivo-ia { background: var(--acento-claro); border-radius: 10px; padding: 10px 12px; font-size: 14px; color: var(--marinho); }
+
 /* ---------- computador ---------- */
 @media (min-width: 1024px) {
   .app { flex-direction: row; }

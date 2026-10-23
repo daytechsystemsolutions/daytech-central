@@ -31,6 +31,9 @@ class FabricaController extends Controller
             'itens.*.tipo' => 'nullable|string|max:30',
             'itens.*.estado' => 'nullable|string|max:30',
             'itens.*.carrossel' => 'nullable|string|max:120',
+            'itens.*.sugerido_ia' => 'nullable|boolean',
+            'itens.*.teste' => 'nullable|boolean',
+            'itens.*.motivo' => 'nullable|string|max:300',
         ]);
 
         $contagem = DB::transaction(function () use ($marca, $dados) {
@@ -40,6 +43,8 @@ class FabricaController extends Controller
                     'data' => $i['data'], 'hora' => $i['hora'] ?? '11:40', 'titulo' => $i['titulo'],
                     'ideia' => $i['ideia'] ?? null, 'publico' => $i['publico'] ?? [], 'tipo' => $i['tipo'] ?? null,
                     'estado' => $i['estado'] ?? 'proposto', 'carrossel' => $i['carrossel'] ?? $item->carrossel,
+                    'sugerido_ia' => (bool) ($i['sugerido_ia'] ?? false), 'teste' => (bool) ($i['teste'] ?? false),
+                    'motivo' => $i['motivo'] ?? null,
                 ]);
                 // Passou da fase de tema (produzido, aprovado...): a decisão de tema e o pedido de produção acabaram.
                 if (! $item->podeMexer()) {

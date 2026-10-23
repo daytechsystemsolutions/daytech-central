@@ -79,6 +79,11 @@ class Marca extends Model
         return $this->hasMany(Post::class);
     }
 
+    public function regras(): HasMany
+    {
+        return $this->hasMany(Regra::class);
+    }
+
     public function contaDias(): HasMany
     {
         return $this->hasMany(ContaDia::class);
