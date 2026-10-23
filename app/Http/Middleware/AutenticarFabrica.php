@@ -10,10 +10,12 @@ use Symfony\Component\HttpFoundation\Response;
 /** API da fábrica: só com a chave criada por `central:token-fabrica` (Authorization: Bearer). */
 class AutenticarFabrica
 {
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string $escopo = 'fabrica'): Response
     {
         $token = (string) $request->bearerToken();
-        $registro = strlen($token) >= 40 ? TokenFabrica::where('hash', TokenFabrica::hashDe($token))->first() : null;
+        $registro = strlen($token) >= 40
+            ? TokenFabrica::where('hash', TokenFabrica::hashDe($token))->where('escopo', $escopo)->first()
+            : null;
 
         if (! $registro) {
             return response()->json(['erro' => 'Chave da fábrica inválida.'], 401);

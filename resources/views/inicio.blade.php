@@ -26,13 +26,13 @@
           </span>
         </div>
         <div class="cartao forte indicador">
-          <span class="fraco">Alcance em 7 dias</span>
-          <strong>{{ number_format($i['sete_dias']['alcance'], 0, ',', '.') }}</strong>
-          <span class="variacao">pessoas alcançadas</span>
+          <span class="fraco">Leads do Instagram</span>
+          <strong>{{ $i['leads_semana'] }}</strong>
+          <span class="variacao {{ $i['leads_semana'] ? 'sobe' : '' }}">nos últimos 7 dias · {{ $i['leads_mes'] }} em {{ $i['mes'] }}</span>
         </div>
       </div>
       <p class="sete-dias"><strong>{{ $i['sete_dias']['desde'] ? 'Desde '.$i['sete_dias']['desde'] : 'Últimos 7 dias' }}:</strong>
-        {{ $i['sete_dias']['interacoes'] }} interações · {{ $i['sete_dias']['visitas'] }} visitas ao perfil · {{ $i['sete_dias']['toques'] }} toques no link da bio</p>
+        {{ number_format($i['sete_dias']['alcance'], 0, ',', '.') }} pessoas alcançadas · {{ $i['sete_dias']['interacoes'] }} interações · {{ $i['sete_dias']['visitas'] }} visitas ao perfil · {{ $i['sete_dias']['toques'] }} toques no link da bio</p>
     </section>
   @else
     <span class="data">{{ ucfirst(now()->locale('pt_BR')->translatedFormat('l, j \d\e F')) }}</span>

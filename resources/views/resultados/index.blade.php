@@ -35,6 +35,8 @@
     @endforeach
   </section>
   <p class="fraco pequeno">Soma dos posts publicados no período, comparada com o período anterior.</p>
+  <div class="aviso {{ $leads ? 'ok' : 'atencao' }}"><x-icone nome="{{ $leads ? 'certo' : 'atencao' }}" tamanho="20"/>
+    <span>{{ $leads === 1 ? '1 lead chegou' : $leads.' leads chegaram' }} pelo site vindos do Instagram neste período.{{ $leads ? '' : ' (o link da bio precisa da marcação do Instagram)' }}</span></div>
 
   @if($destaques->count())
     <section class="destaque-espera" aria-labelledby="destaques">

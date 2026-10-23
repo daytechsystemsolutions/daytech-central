@@ -33,6 +33,7 @@ class ResultadosController extends Controller
             'ordem' => $ordem,
             'resumo' => $resultados->resumo($posts, $anteriores),
             'destaques' => $resultados->destaques($posts),
+            'leads' => $marca->leads()->whereBetween('recebido_em', [$periodo->inicio->startOfDay(), $periodo->fim->endOfDay()])->count(),
             // Em "melhor nota primeiro" a lista é uma só; em "mais recentes", agrupada por semana (ou mês, no ano).
             'grupos' => $ordenados->isEmpty() ? collect() : ($ordem === 'nota' ? collect(['' => $ordenados->values()]) : $ordenados->groupBy($grupo)),
         ]);

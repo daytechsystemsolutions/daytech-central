@@ -43,6 +43,8 @@ class Indicadores
                 'toques' => $seteDias->sum('toques_link'),
                 'desde' => $desde && $desde->gt($hoje->subDays(7)) ? $desde->format('d/m') : null,
             ],
+            'leads_semana' => $marca->leads()->where('recebido_em', '>=', $hoje->subDays(6)->startOfDay())->count(),
+            'leads_mes' => $marca->leads()->where('recebido_em', '>=', $inicioMes)->count(),
             'atualizado' => $ultimo->updated_at,
         ];
     }

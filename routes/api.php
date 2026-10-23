@@ -4,6 +4,9 @@ use App\Http\Controllers\Api\AprendizadoController;
 use App\Http\Controllers\Api\FabricaController;
 use Illuminate\Support\Facades\Route;
 
+// Site avisa lead vindo do Instagram (só contagem). Chave: php artisan central:token-fabrica site --site.
+Route::middleware(['fabrica:site', 'throttle:60,1'])->post('/site/marcas/{marca}/leads', [\App\Http\Controllers\Api\LeadsController::class, 'receber']);
+
 // API da fábrica de conteúdo (o kit no PC). Chave: php artisan central:token-fabrica.
 Route::middleware(['fabrica', 'throttle:120,1'])->prefix('fabrica/marcas/{marca}')->group(function () {
     Route::put('/calendario', [FabricaController::class, 'enviarCalendario']);

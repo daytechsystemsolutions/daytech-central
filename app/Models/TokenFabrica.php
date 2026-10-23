@@ -9,7 +9,7 @@ class TokenFabrica extends Model
 {
     protected $table = 'tokens_fabrica';
 
-    protected $fillable = ['nome', 'hash', 'ultimo_uso_em'];
+    protected $fillable = ['nome', 'hash', 'ultimo_uso_em', 'escopo'];
 
     protected function casts(): array
     {
