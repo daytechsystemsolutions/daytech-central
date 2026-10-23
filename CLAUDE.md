@@ -27,6 +27,9 @@ Responder ao usuário sempre em português (pt-BR).
 - Usuário: `php artisan central:usuario <email>` (senha perguntada; `--zerar-2fa` se perder o celular). Sem cadastro
   nem "esqueci a senha" na tela. 2 fatores obrigatório (middleware `dois.fatores`).
 - Marcas: `central:preparar` cria as que faltam; `central:marca-instagram <slug>` liga o Instagram.
+- Fábrica (kit `~/Documentos/mednext-videos`, `./video central ...`): API em `routes/api.php` com chave de
+  `central:token-fabrica` (só o hash no banco). Carrossel decidido não aceita lâminas novas na mesma versão (409);
+  a aprovação vai com `hash_laminas` e o postador do kit confere de novo na hora de postar.
 
 ## Estrutura
 

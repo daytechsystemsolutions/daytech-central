@@ -7,7 +7,8 @@
 <meta name="robots" content="noindex, nofollow">
 <title>{{ $titulo ?? 'Central' }} · Central DayTech</title>
 <link rel="preload" href="/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/central.css?v=2">
+<link rel="stylesheet" href="/css/central.css?v=3">
+<script src="/js/central.js?v=1" defer></script>
 </head>
 <body>
 <div class="app">

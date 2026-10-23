@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Uma marca da DayTech (MedNext SST, LuPe Educa...) com a conta de Instagram dela.
@@ -44,5 +45,20 @@ class Marca extends Model
     public function instagramConectado(): bool
     {
         return filled($this->instagram_conta_id) && filled($this->instagram_token) && $this->instagram_verificado_em !== null;
+    }
+
+    public function conteudos(): HasMany
+    {
+        return $this->hasMany(Conteudo::class);
+    }
+
+    public function calendario(): HasMany
+    {
+        return $this->hasMany(CalendarioItem::class);
+    }
+
+    public function ideias(): HasMany
+    {
+        return $this->hasMany(Ideia::class);
     }
 }
