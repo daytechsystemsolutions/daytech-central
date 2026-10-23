@@ -25,6 +25,20 @@ class MarcaController extends Controller
         return redirect()->route('inicio');
     }
 
+    /** Liga ou desliga "Postar sozinho no horário" (só posta o que você aprovou). */
+    public function postagem(Request $request, Marca $marca): RedirectResponse
+    {
+        $ligar = $request->boolean('ligar');
+        if ($ligar && ! $marca->instagramConectado()) {
+            return back()->with('aviso', 'Conecte o Instagram desta marca antes de ligar a postagem.');
+        }
+        $marca->forceFill(['postagem_automatica' => $ligar, 'postagem_ligada_em' => $ligar ? now() : null])->save();
+
+        return back()->with('ok', $ligar
+            ? 'Postagem ligada: a Central posta no horário o que você aprovou, mesmo com o computador desligado.'
+            : 'Postagem desligada: nada sai sozinho.');
+    }
+
     /** Confere de novo, na API, se o Instagram da marca continua ligado. */
     public function conferir(Marca $marca, InstagramClient $instagram): RedirectResponse
     {

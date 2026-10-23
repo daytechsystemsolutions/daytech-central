@@ -13,7 +13,7 @@ class Conteudo extends Model
     protected $fillable = [
         'marca_id', 'nome', 'titulo', 'calendario_chave', 'agendado_para', 'publico', 'legenda_instagram',
         'texto_linkedin', 'conferencia', 'fontes', 'versao', 'estado', 'decisao', 'nota', 'versao_decidida',
-        'decidido_em', 'ajuste_feito', 'pdf_caminho', 'hash_laminas', 'link', 'publicado_em',
+        'decidido_em', 'ajuste_feito', 'pdf_caminho', 'hash_laminas', 'link', 'publicado_em', 'erro_postagem',
     ];
 
     protected function casts(): array
@@ -72,6 +72,7 @@ class Conteudo extends Model
             'tirado' => ['tirado', 'erro'],
             'publicado' => ['publicado', 'ok'],
             'falhou' => ['falhou', 'erro'],
+            'postando' => ['postando agora', 'agendado'],
             default => [$this->estado, 'neutro'],
         };
     }

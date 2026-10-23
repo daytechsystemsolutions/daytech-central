@@ -47,9 +47,25 @@
       <div class="linha-item">
         <div class="textos">
           <span class="forte">Postar sozinho no horário</span>
-          <span class="fraco">{{ $m->postagem_automatica ? 'Ligado: posta o que você aprovou' : 'Desligado: nada é postado sozinho' }}</span>
+          <span class="fraco">{{ $m->postagem_automatica ? 'Ligado: a Central posta no horário o que você aprovou, mesmo com o computador desligado' : 'Desligado: nada é postado sozinho' }}</span>
         </div>
-        <span class="pilula {{ $m->postagem_automatica ? 'ok' : 'neutro' }}">{{ $m->postagem_automatica ? 'ligado' : 'desligado' }}</span>
+        @if($m->postagem_automatica)
+          <form method="post" action="{{ route('marcas.postagem', $m) }}">
+            @csrf
+            <input type="hidden" name="ligar" value="0">
+            <button type="submit" class="botao pequeno">Desligar</button>
+          </form>
+        @else
+          <details class="dobra">
+            <summary class="botao pequeno escuro">Ligar</summary>
+            <form method="post" action="{{ route('marcas.postagem', $m) }}" class="dobra-corpo confirmar-postagem">
+              @csrf
+              <input type="hidden" name="ligar" value="1">
+              <span class="fraco">A Central vai postar sozinha no Instagram, no horário, só os carrosséis em que você tocou "Aprovar e agendar". Dá para desligar quando quiser.</span>
+              <button type="submit" class="botao verde cheio">Ligar a postagem</button>
+            </form>
+          </details>
+        @endif
       </div>
       @endif
 

@@ -20,7 +20,7 @@ class AprovarController extends Controller
     public function index(Request $request): View
     {
         $marca = $request->attributes->get('marca');
-        $conteudos = $marca->conteudos()->whereIn('estado', ['aguardando', 'ajuste', 'agendado'])
+        $conteudos = $marca->conteudos()->whereIn('estado', ['aguardando', 'ajuste', 'agendado', 'falhou'])
             ->orderByRaw('agendado_para is null')->orderBy('agendado_para')->get();
 
         return view('aprovar.lista', [
@@ -109,6 +109,28 @@ class AprovarController extends Controller
         $conteudo->forceFill(['estado' => 'aguardando', 'decisao' => null, 'nota' => null, 'versao_decidida' => null, 'decidido_em' => null])->save();
 
         return redirect()->route('aprovar.ver', $conteudo)->with('ok', 'Desfeito. O carrossel voltou para Para aprovar.');
+    }
+
+    /** Para o Instagram: só lâmina da versão atual de carrossel agendado (o link já vem assinado e com validade). */
+    public function laminaPublica(Conteudo $conteudo, ConteudoLamina $lamina): StreamedResponse
+    {
+        abort_unless($lamina->conteudo_id === $conteudo->id && $lamina->versao === $conteudo->versao
+            && in_array($conteudo->estado, ['agendado', 'publicado'], true) && Storage::exists($lamina->caminho), 404);
+
+        return Storage::response($lamina->caminho, $lamina->ordem.'.jpg', ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'no-store']);
+    }
+
+    /** Postagem falhou: volta a "agendado" e posta na próxima rodada (se o horário já passou, em até 5 minutos). */
+    public function tentarDeNovo(Conteudo $conteudo): RedirectResponse
+    {
+        if ($conteudo->estado !== 'falhou') {
+            return back();
+        }
+        // Horário já passou: vira "agora", para entrar na janela de postagem.
+        $conteudo->forceFill(['estado' => 'agendado', 'erro_postagem' => null,
+            'agendado_para' => $conteudo->agendado_para && $conteudo->agendado_para->isFuture() ? $conteudo->agendado_para : now()])->save();
+
+        return back()->with('ok', 'Combinado: a Central tenta postar de novo nos próximos 5 minutos.');
     }
 
     public function lamina(Conteudo $conteudo, ConteudoLamina $lamina): StreamedResponse

@@ -92,6 +92,27 @@ class InstagramClient
         return ['https://'.$partes['host'].($partes['path'] ?? ''), $query + $campos];
     }
 
+    /**
+     * POST na API (criar contêiner, publicar). Token no cabeçalho, como no GET.
+     *
+     * @throws InstagramErro
+     */
+    public function post(string $token, string $caminho, array $campos): array
+    {
+        try {
+            $resposta = Http::timeout(60)->acceptJson()->asForm()->withToken($token)->post("{$this->base}/".ltrim($caminho, '/'), $campos);
+        } catch (ConnectionException) {
+            throw new InstagramErro('Não consegui falar com o Instagram.');
+        }
+        if ($resposta->failed()) {
+            $mensagem = (string) $resposta->json('error.message', 'resposta inesperada');
+            $codigo = $resposta->json('error.code');
+            throw new InstagramErro('Instagram: '.Str::limit(str_replace($token, '***', $mensagem), 200), is_numeric($codigo) ? (int) $codigo : null);
+        }
+
+        return (array) $resposta->json();
+    }
+
     /** Segue a paginação ("paging.next") e junta tudo de "data". */
     public function todos(string $token, string $caminho, array $campos = [], int $maxPaginas = 20): array
     {

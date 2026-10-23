@@ -76,6 +76,13 @@
               </details>
             </div>
           @else
+            @if($conteudo->estado === 'falhou')
+              <div class="aviso erro"><x-icone nome="atencao" tamanho="20"/><span>Não foi publicado: {{ $conteudo->erro_postagem }}</span></div>
+              <form method="post" action="{{ route('aprovar.tentar', $conteudo) }}">
+                @csrf
+                <button type="submit" class="botao verde cheio">Tentar de novo</button>
+              </form>
+            @endif
             @if($conteudo->estado === 'ajuste' && $conteudo->nota)
               <p class="fraco">Ajuste pedido: {{ $conteudo->nota }}</p>
             @endif

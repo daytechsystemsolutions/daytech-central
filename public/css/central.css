@@ -282,6 +282,9 @@ p { margin: 0; }
 .selo-ia { background: var(--marinho); color: #FFFFFF; }
 .motivo-ia { background: var(--acento-claro); border-radius: 10px; padding: 10px 12px; font-size: 14px; color: var(--marinho); }
 
+.confirmar-postagem { position: absolute; right: 16px; left: 16px; z-index: 5; background: #FFFFFF; border: 2px solid var(--marinho-escuro); box-shadow: var(--sombra); border-radius: 12px; padding: 14px; margin-top: 8px; }
+.linha-item { position: relative; }
+
 /* ---------- computador ---------- */
 @media (min-width: 1024px) {
   .app { flex-direction: row; }

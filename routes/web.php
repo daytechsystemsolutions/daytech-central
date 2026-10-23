@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Route;
 
 // Login, 2 fatores e sair: rotas do Fortify (config/fortify.php). Sem cadastro aberto.
 
+// Lâmina para o Instagram baixar na hora de postar: link assinado que expira em 2 horas, sem login.
+Route::get('/p/{conteudo}/{lamina}', [AprovarController::class, 'laminaPublica'])->middleware(['signed', 'throttle:120,1'])->name('publico.lamina');
+
 Route::middleware(['auth', 'dois.fatores', 'marca.atual'])->group(function () {
     Route::get('/', [PainelController::class, 'inicio'])->name('inicio');
     Route::get('/resultados', [ResultadosController::class, 'index'])->name('resultados');
@@ -25,6 +28,7 @@ Route::middleware(['auth', 'dois.fatores', 'marca.atual'])->group(function () {
     Route::post('/aprovar/{conteudo}/ajuste', [AprovarController::class, 'ajuste'])->name('aprovar.ajuste');
     Route::post('/aprovar/{conteudo}/tirar', [AprovarController::class, 'tirar'])->name('aprovar.tirar');
     Route::post('/aprovar/{conteudo}/desfazer', [AprovarController::class, 'desfazer'])->name('aprovar.desfazer');
+    Route::post('/aprovar/{conteudo}/tentar-de-novo', [AprovarController::class, 'tentarDeNovo'])->name('aprovar.tentar');
     Route::get('/aprovar/{conteudo}/laminas/{lamina}', [AprovarController::class, 'lamina'])->name('aprovar.lamina');
     Route::get('/aprovar/{conteudo}/linkedin.pdf', [AprovarController::class, 'pdf'])->name('aprovar.pdf');
 
@@ -41,6 +45,7 @@ Route::middleware(['auth', 'dois.fatores', 'marca.atual'])->group(function () {
 
     Route::get('/marcas', [MarcaController::class, 'index'])->name('marcas');
     Route::post('/marcas/{marca}/abrir', [MarcaController::class, 'escolher'])->name('marcas.escolher');
+    Route::post('/marcas/{marca}/postagem', [MarcaController::class, 'postagem'])->name('marcas.postagem');
     Route::post('/marcas/{marca}/conferir', [MarcaController::class, 'conferir'])
         ->middleware('throttle:10,1')->name('marcas.conferir');
 

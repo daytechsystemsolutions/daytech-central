@@ -91,6 +91,9 @@ class ColetaInstagram
                 $post->conteudo_id = Conteudo::where('marca_id', $marca->id)->where('link', 'like', rtrim($post->permalink, '/').'%')->value('id');
             }
             $post->save();
+            if ($post->conteudo_id && $post->permalink) {
+                Conteudo::whereKey($post->conteudo_id)->whereNull('link')->update(['link' => $post->permalink]);
+            }
 
             if (! $post->capa_caminho && ($url = $m['thumbnail_url'] ?? $m['media_url'] ?? null)) {
                 $bytes = $this->api->baixar($url);
