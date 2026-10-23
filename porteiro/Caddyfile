@@ -4,14 +4,14 @@
 
 # Site institucional MedNext (repo mednextsst-site). O nginx do site segue com vídeos, cache e limites.
 mednextsst.com, www.mednextsst.com {
-	reverse_proxy mednext_site_nginx_prod:80
+    reverse_proxy mednext_site_nginx_prod:80
 }
 
 # Central DayTech (repo daytech-central). Até a etapa 1, só uma página de aviso.
 central.daytechsolutions.com.br {
-	header {
-		Strict-Transport-Security "max-age=63072000"
-		X-Robots-Tag "noindex, nofollow"
-	}
-	respond "Central DayTech: em construção." 200
+    header {
+        Strict-Transport-Security "max-age=63072000"
+        X-Robots-Tag "noindex, nofollow"
+    }
+    respond "Central DayTech: em construção." 200
 }
