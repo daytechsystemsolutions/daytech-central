@@ -101,4 +101,28 @@ class NotaTest extends TestCase
         $this->actingAs($usuario)->get('/')->assertOk()
             ->assertSee('Sua conta')->assertSee('82')->assertSee('+3 na semana')->assertSee('130')->assertSee('7 interações');
     }
+
+    public function test_telas_de_resultado(): void
+    {
+        foreach (range(1, 5) as $n) {
+            $this->media("m{$n}", 3 + $n);
+        }
+        $top = $this->criarPost('top', 2, ['visualizacoes' => 900, 'alcance' => 300, 'salvos' => 9, 'compartilhamentos' => 9, 'novos_seguidores' => 3, 'visitas_perfil' => 3, 'acoes_perfil' => 3]);
+        $top->forceFill(['legenda' => "Riscos psicossociais na NR-1\nlegenda"])->save();
+        app(NotaDoPost::class)->atualizar($this->marca);
+        $usuario = User::factory()->create(['two_factor_secret' => encrypt('S'), 'two_factor_confirmed_at' => now()]);
+
+        $this->actingAs($usuario)->get('/resultados?periodo=mes')->assertOk()
+            ->assertSee('Os que mais engajaram')->assertSee('Riscos psicossociais na NR-1')->assertSee('x a média');
+        $this->actingAs($usuario)->get('/resultados?periodo=semana&ordem=recentes')->assertOk();
+        $this->actingAs($usuario)->get('/resultados?periodo=ano&data=2020-01-01')->assertOk()->assertSee('Nenhum post publicado neste período');
+        $this->actingAs($usuario)->get("/resultados/{$top->id}")->assertOk()->assertSee('Nota do post')->assertSee((string) $top->fresh()->nota);
+        $this->actingAs($usuario)->get('/resultados/aprendemos')->assertOk()->assertSee('Por formato')->assertSee('Carrossel');
+
+        // Post de outra marca não abre.
+        $lupe = Marca::where('slug', 'lupe')->first();
+        $outro = Post::create(['marca_id' => $lupe->id, 'ig_id' => 'lupe1', 'tipo_midia' => 'IMAGE', 'publicado_em' => now()]);
+        $this->actingAs($usuario)->get("/resultados/{$outro->id}")->assertNotFound();
+        $this->actingAs($usuario)->get("/resultados/{$outro->id}/capa")->assertNotFound();
+    }
 }

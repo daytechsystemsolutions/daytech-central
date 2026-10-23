@@ -158,7 +158,8 @@ class AprovacaoTest extends TestCase
     {
         $this->api('POST', '/conteudos', $this->carrossel(['publicado' => ['link' => 'https://www.instagram.com/p/abc/', 'em' => '2026-10-22 18:06']]))
             ->assertJson(['estado' => 'publicado']);
-        $this->actingAs($this->usuario())->get('/publicados')->assertSee('GHE explicado')->assertSee('instagram.com/p/abc');
+        $this->actingAs($this->usuario())->get('/publicados')->assertRedirect('/resultados');
+        $this->assertSame('https://www.instagram.com/p/abc/', Conteudo::first()->link);
     }
 
     public function test_calendario_mostra_o_mes_inteiro_e_trocar_volta_para_o_kit(): void

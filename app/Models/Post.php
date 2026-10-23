@@ -59,6 +59,6 @@ class Post extends Model
         }
         $linha = trim(strtok((string) $this->legenda, "\n") ?: '');
 
-        return $linha !== '' ? \Illuminate\Support\Str::limit($linha, 80) : 'Post de '.$this->publicado_em->format('d/m/Y');
+        return $linha !== '' ? \Illuminate\Support\Str::limit($linha, 60) : 'Post de '.$this->publicado_em->format('d/m/Y');
     }
 }

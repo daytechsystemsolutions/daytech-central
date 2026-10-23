@@ -8,7 +8,7 @@
 <title>{{ $titulo ?? 'Central' }} · Central DayTech</title>
 <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/central.css?v=6">
+<link rel="stylesheet" href="/css/central.css?v=7">
 <script src="/js/central.js?v=1" defer></script>
 </head>
 <body>
@@ -21,7 +21,7 @@
     <a href="{{ route('inicio') }}" @if(request()->routeIs('inicio')) aria-current="page" @endif><x-icone nome="inicio"/>Início</a>
     <a href="{{ route('aprovar') }}" @if(request()->routeIs('aprovar')) aria-current="page" @endif><x-icone nome="aprovar"/>Aprovar</a>
     <a href="{{ route('calendario') }}" @if(request()->routeIs('calendario')) aria-current="page" @endif><x-icone nome="calendario"/>Calendário</a>
-    <a href="{{ route('publicados') }}" @if(request()->routeIs('publicados')) aria-current="page" @endif><x-icone nome="publicados"/>Publicados</a>
+    <a href="{{ route('resultados') }}" @if(request()->routeIs('resultados*')) aria-current="page" @endif><x-icone nome="publicados"/>Resultados</a>
     <a class="so-lateral" href="{{ route('marcas') }}" @if(request()->routeIs('marcas')) aria-current="page" @endif><x-icone nome="marcas"/>Marcas</a>
     <a class="so-lateral" href="{{ route('seguranca') }}" @if(request()->routeIs('seguranca')) aria-current="page" @endif><x-icone nome="seguranca"/>Segurança</a>
   </nav>

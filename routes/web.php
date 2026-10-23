@@ -4,6 +4,7 @@ use App\Http\Controllers\AprovarController;
 use App\Http\Controllers\CalendarioController;
 use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\PainelController;
+use App\Http\Controllers\ResultadosController;
 use App\Http\Controllers\SegurancaController;
 use Illuminate\Support\Facades\Route;
 
@@ -11,7 +12,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'dois.fatores', 'marca.atual'])->group(function () {
     Route::get('/', [PainelController::class, 'inicio'])->name('inicio');
-    Route::get('/publicados', [PainelController::class, 'publicados'])->name('publicados');
+    Route::get('/resultados', [ResultadosController::class, 'index'])->name('resultados');
+    Route::get('/resultados/aprendemos', [ResultadosController::class, 'aprendizados'])->name('resultados.aprendizados');
+    Route::get('/resultados/{post}', [ResultadosController::class, 'post'])->name('resultados.post');
+    Route::get('/resultados/{post}/capa', [ResultadosController::class, 'capa'])->name('resultados.capa');
+    Route::redirect('/publicados', '/resultados');
 
     Route::get('/aprovar', [AprovarController::class, 'index'])->name('aprovar');
     Route::get('/aprovar/{conteudo}', [AprovarController::class, 'ver'])->name('aprovar.ver');

@@ -72,11 +72,22 @@
   @endif
 
   @if($ultimo)
+    @php
+      [$faixa, $classeFaixa] = $ultimo->faixa();
+    @endphp
     <section class="secao" aria-labelledby="ultimo">
-      <h2 id="ultimo" class="secao-titulo">Último publicado.</h2>
-      <a class="cartao cartao-corpo link-cartao" href="{{ route('publicados') }}">
-        <span class="forte">{{ $ultimo->titulo }}</span>
-        <span class="fraco">{{ ucfirst($ultimo->publicado_em?->locale('pt_BR')->translatedFormat('l, d/m') ?? '') }}</span>
+      <div class="titulo-com-botao">
+        <h2 id="ultimo" class="secao-titulo">Último publicado.</h2>
+        <a href="{{ route('resultados') }}" class="forte">Resultados</a>
+      </div>
+      <a class="cartao item-aprovar" href="{{ route('resultados.post', $ultimo) }}">
+        @if($ultimo->capa_caminho)<img class="capa" src="{{ route('resultados.capa', $ultimo) }}" alt="" width="72" height="90" loading="lazy">@endif
+        <span class="textos">
+          <span class="forte">{{ $ultimo->titulo() }}</span>
+          <span class="fraco">{{ ucfirst($ultimo->publicado_em->locale('pt_BR')->translatedFormat('l, d/m')) }} · {{ number_format($ultimo->ultimaMetrica?->visualizacoes ?? 0, 0, ',', '.') }} visualizações</span>
+          <span class="pilula {{ $classeFaixa }}">{{ $ultimo->nota !== null ? 'nota '.$ultimo->nota.' · '.$faixa : $faixa }}{{ $ultimo->nota_fechada_em ? '' : ' (parcial)' }}</span>
+        </span>
+        <x-icone nome="seta-direita" tamanho="18"/>
       </a>
     </section>
   @endif
