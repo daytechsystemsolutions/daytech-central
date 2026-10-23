@@ -1,5 +1,42 @@
 <x-layouts.app titulo="Início">
-  <span class="data">{{ ucfirst(now()->locale('pt_BR')->translatedFormat('l, j \d\e F')) }}</span>
+  @if($indicadores)
+    @php
+      $i = $indicadores;
+      $sinal = fn ($n) => $n === null ? null : ($n > 0 ? '+'.$n : ($n < 0 ? '−'.abs($n) : '='));
+    @endphp
+    <section class="secao" aria-labelledby="indicadores">
+      <span class="sobretitulo">{{ ucfirst($i['mes']) }} {{ now()->format('Y') }}</span>
+      <h1 id="indicadores" class="titulo-pagina">Sua conta <span class="marca-texto">no mês.</span></h1>
+      <div class="indicadores">
+        <div class="cartao forte indicador">
+          <span class="fraco">Seguidores</span>
+          <strong>{{ $i['seguidores'] ?? '—' }}</strong>
+          <span class="variacao {{ $i['seguidores_variacao'] === null ? '' : ($i['seguidores_variacao'] < 0 ? 'cai' : 'sobe') }}">{{ $i['seguidores_variacao'] === null ? 'variação a partir da próxima semana' : $sinal($i['seguidores_variacao']).' na semana' }}</span>
+        </div>
+        <div class="cartao forte indicador">
+          <span class="fraco">Posts</span>
+          <strong>{{ $i['posts'] ?? '—' }}</strong>
+          <span class="variacao">{{ $i['posts_no_mes'] }} em {{ $i['mes'] }}</span>
+        </div>
+        <div class="cartao forte indicador">
+          <span class="fraco">Nota do mês</span>
+          <strong>{{ $i['nota_mes'] ?? '—' }}</strong>
+          <span class="variacao {{ $i['nota_variacao'] === null ? '' : ($i['nota_variacao'] < 0 ? 'cai' : 'sobe') }}">
+            {{ $i['nota_mes'] === null ? 'sem posts com nota' : $i['nota_faixa'][0].($i['nota_variacao'] !== null ? ' · '.$sinal($i['nota_variacao']).' pontos' : '') }}
+          </span>
+        </div>
+        <div class="cartao forte indicador">
+          <span class="fraco">Alcance em 7 dias</span>
+          <strong>{{ number_format($i['sete_dias']['alcance'], 0, ',', '.') }}</strong>
+          <span class="variacao">pessoas alcançadas</span>
+        </div>
+      </div>
+      <p class="sete-dias"><strong>{{ $i['sete_dias']['desde'] ? 'Desde '.$i['sete_dias']['desde'] : 'Últimos 7 dias' }}:</strong>
+        {{ $i['sete_dias']['interacoes'] }} interações · {{ $i['sete_dias']['visitas'] }} visitas ao perfil · {{ $i['sete_dias']['toques'] }} toques no link da bio</p>
+    </section>
+  @else
+    <span class="data">{{ ucfirst(now()->locale('pt_BR')->translatedFormat('l, j \d\e F')) }}</span>
+  @endif
 
   @if($esperando->count())
     <section class="destaque-espera" aria-labelledby="esperando">

@@ -8,7 +8,7 @@
 <title>{{ $titulo }} · Central DayTech</title>
 <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/central.css?v=5">
+<link rel="stylesheet" href="/css/central.css?v=6">
 </head>
 <body>
 <main class="tela-entrada">

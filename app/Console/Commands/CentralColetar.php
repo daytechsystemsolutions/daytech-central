@@ -51,7 +51,8 @@ class CentralColetar extends Command
                     $novos = $coleta->posts($marca);
                     $alvo = $this->option('todos') ? $marca->posts()->get() : $marca->posts()->where('publicado_em', '>=', now()->subDays(30))->get();
                     $lidos = $coleta->metricas($marca, $alvo);
-                    $this->line("✓ {$marca->slug} posts: {$novos} novo(s), números de {$lidos} post(s)");
+                    $notas = app(\App\Services\Resultados\NotaDoPost::class)->atualizar($marca);
+                    $this->line("✓ {$marca->slug} posts: {$novos} novo(s), números de {$lidos} post(s), {$notas} nota(s) atualizada(s)");
                 }
                 if ($o === 'semanal') {
                     $alvo = $marca->posts()->whereBetween('publicado_em', [now()->subDays(90), now()->subDays(30)])->get();

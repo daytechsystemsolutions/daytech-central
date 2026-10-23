@@ -13,6 +13,7 @@ class PainelController extends Controller
 
         return view('inicio', [
             'marca' => $marca,
+            'indicadores' => app(\App\Services\Resultados\Indicadores::class)->daMarca($marca),
             'esperando' => $marca->conteudos()->where('estado', 'aguardando')->orderBy('agendado_para')->get(),
             'proximos' => $marca->calendario()->where('data', '>=', now()->toDateString())->where('estado', '!=', 'tirado')
                 ->where(fn ($q) => $q->whereNull('decisao')->orWhere('decisao', '!=', 'tirar'))

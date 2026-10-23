@@ -17,7 +17,7 @@ class Marca extends Model
     protected $fillable = [
         'nome', 'slug', 'iniciais', 'cor', 'descricao', 'horario_padrao',
         'instagram_usuario', 'instagram_conta_id', 'instagram_token',
-        'instagram_verificado_em', 'instagram_erro', 'postagem_automatica', 'ativa', 'ordem',
+        'instagram_verificado_em', 'instagram_erro', 'postagem_automatica', 'ativa', 'ordem', 'fase',
     ];
 
     protected $hidden = ['instagram_token'];
@@ -45,6 +45,18 @@ class Marca extends Model
     public function instagramConectado(): bool
     {
         return filled($this->instagram_conta_id) && filled($this->instagram_token) && $this->instagram_verificado_em !== null;
+    }
+
+    /** Seguidores na última leitura da conta. */
+    public function seguidores(): ?int
+    {
+        return $this->contaDias()->whereNotNull('seguidores')->latest('dia')->value('seguidores');
+    }
+
+    /** "conhecido" (até 500 seguidores) ou "clientes"; escolhida à mão em Marcas, se houver. */
+    public function faseAtual(): string
+    {
+        return $this->fase ?? (($this->seguidores() ?? 0) >= 500 ? 'clientes' : 'conhecido');
     }
 
     public function conteudos(): HasMany

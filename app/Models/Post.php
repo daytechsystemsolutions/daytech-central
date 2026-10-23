@@ -13,11 +13,11 @@ class Post extends Model
     protected $table = 'posts';
 
     protected $fillable = ['marca_id', 'ig_id', 'conteudo_id', 'tipo_midia', 'legenda', 'permalink', 'publicado_em',
-        'capa_caminho', 'como_foi_feito', 'como_foi_feito_estimado', 'metricas_em', 'sem_numeros'];
+        'capa_caminho', 'como_foi_feito', 'como_foi_feito_estimado', 'metricas_em', 'sem_numeros', 'nota', 'nota_partes', 'nota_fechada_em'];
 
     protected function casts(): array
     {
-        return ['publicado_em' => 'datetime', 'metricas_em' => 'datetime', 'como_foi_feito' => 'array', 'como_foi_feito_estimado' => 'boolean', 'sem_numeros' => 'boolean'];
+        return ['publicado_em' => 'datetime', 'metricas_em' => 'datetime', 'como_foi_feito' => 'array', 'como_foi_feito_estimado' => 'boolean', 'sem_numeros' => 'boolean', 'nota_partes' => 'array', 'nota_fechada_em' => 'datetime'];
     }
 
     public function marca(): BelongsTo
@@ -43,6 +43,12 @@ class Post extends Model
     public function comentarios(): HasMany
     {
         return $this->hasMany(PostComentario::class)->orderByDesc('comentado_em');
+    }
+
+    /** [texto, classe da pílula] da faixa da nota. */
+    public function faixa(): array
+    {
+        return \App\Services\Resultados\NotaDoPost::faixa($this->nota);
     }
 
     /** Título curto: o do carrossel da Central ou a primeira linha da legenda. */

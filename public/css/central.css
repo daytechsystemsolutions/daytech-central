@@ -219,6 +219,17 @@ p { margin: 0; }
 .publicos legend { margin-bottom: 4px; }
 .campo input[type="date"], .campo input[type="time"], .campo input[type="datetime-local"] { padding: 0 10px; }
 
+/* indicadores do Início */
+.indicadores { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.indicador { padding: 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.indicador strong { font-family: var(--fonte-titulo); font-stretch: 88%; font-weight: 800; font-size: 34px; line-height: 1; color: var(--marinho); font-variant-numeric: tabular-nums; }
+.variacao { font-size: 12px; font-weight: 700; color: var(--apagado); }
+.variacao.sobe { color: var(--acao-escura); }
+.variacao.cai { color: var(--erro); }
+.sete-dias { background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 12px 14px; font-size: 13px; line-height: 1.5; color: var(--apagado); }
+.sete-dias strong { color: var(--tinta); }
+.pilula.atencao { background: #FEF3C7; color: #92400E; }
+
 /* ---------- computador ---------- */
 @media (min-width: 1024px) {
   .app { flex-direction: row; }
@@ -232,6 +243,7 @@ p { margin: 0; }
   .conteudo { padding: 8px 32px 48px; }
   .topo { padding: 16px 32px; }
   .titulo-pagina { font-size: 40px; }
+  .indicadores { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .topo .so-celular, .topo .logo-marca, .topo .logo-texto { display: none; }
   .aprovar-grade { flex-direction: row; align-items: flex-start; }
   .laminas { flex: 999 1 480px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0; overflow: visible; }
