@@ -2,7 +2,7 @@
   @php
     [$faixa, $classe] = $post->faixa();
     $partes = $post->nota_partes['partes'] ?? [];
-    $nomes = ['alcance' => 'Alcance', 'valor' => 'Valor (salvos + compartilhados por 100 alcançados)', 'crescimento' => 'Crescimento (seguidores + visitas por 100)', 'interesse' => 'Interesse comercial (ações no perfil por 100)'];
+    $nomes = ['alcance' => 'Alcance', 'valor' => 'Valor (salvos + compartilhados por 100 alcançados)', 'crescimento' => 'Crescimento (seguidores + visitas por 100)', 'interesse' => 'Interesse comercial (ações no perfil por 100)', 'retencao' => 'Retenção (segundos assistidos em média)'];
     $numero = fn ($v) => $v === null ? '—' : number_format($v, 0, ',', '.');
     $taxa = fn ($v) => $v === null ? '—' : str_replace('.', ',', (string) round($v, 1));
   @endphp

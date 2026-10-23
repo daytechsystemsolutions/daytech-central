@@ -8,7 +8,15 @@
     <div class="secao">
       <span class="sobretitulo">Para aprovar @if($total > 1)· {{ $posicao }} de {{ $total }}@endif</span>
       <h1 class="titulo-pagina">{{ $conteudo->titulo }}</h1>
-      <span class="fraco">{{ $laminas->count() }} lâminas · versão {{ $conteudo->versao }} · <span class="pilula {{ $classe }}">{{ $rotulo }}</span></span>
+      <span class="fraco">
+        @if($conteudo->ehRoteiro())
+          Roteiro do Reels · {{ count($conteudo->roteiro ?? []) }} cenas{{ $conteudo->duracao_segundos ? ' · cerca de '.$conteudo->duracao_segundos.' s' : '' }}
+        @elseif($conteudo->ehReels())
+          Reels{{ $conteudo->duracao_segundos ? ' · '.$conteudo->duracao_segundos.' s' : '' }}
+        @else
+          {{ $laminas->count() }} lâminas
+        @endif
+        · versão {{ $conteudo->versao }} · <span class="pilula {{ $classe }}">{{ $rotulo }}</span></span>
     </div>
     @if($anterior || $proximo)
       <nav class="setas" aria-label="Outros carrosséis">
@@ -23,6 +31,41 @@
   @endif
 
   <div class="aprovar-grade">
+    @if($conteudo->ehRoteiro())
+      <section class="roteiro" aria-label="Roteiro do Reels">
+        <p class="fraco">Primeira aprovação: o que vai ser falado e o que aparece na tela, cena por cena. Depois de aprovado, o vídeo é gravado e volta aqui para a segunda aprovação. Nada é postado sem o vídeo aprovado.</p>
+        <ol class="roteiro-cenas">
+          @foreach(($conteudo->roteiro ?? []) as $i => $cena)
+            <li class="cartao cartao-corpo">
+              <span class="rotulo">Cena {{ $i + 1 }}</span>
+              <p class="roteiro-fala">“{{ $cena['fala'] ?? '' }}”</p>
+              <p class="fraco"><strong>Na tela:</strong> {{ $cena['mostra'] ?? '' }}</p>
+              @if(isset($laminas[$i]))
+                <img class="roteiro-quadro" src="{{ route('aprovar.lamina', [$conteudo, $laminas[$i], 'v' => $conteudo->versaoDaMidia()]) }}" alt="Quadro da cena {{ $i + 1 }}" loading="lazy">
+              @endif
+            </li>
+          @endforeach
+        </ol>
+      </section>
+    @elseif($conteudo->ehReels())
+      <section class="reels" aria-label="Vídeo do Reels">
+        @if($conteudo->video_caminho)
+          <video class="reels-video" controls playsinline preload="metadata"
+            src="{{ route('aprovar.video', [$conteudo, 'v' => $conteudo->versaoDaMidia()]) }}"
+            @if($conteudo->capa_caminho) poster="{{ route('aprovar.capa', [$conteudo, 'v' => $conteudo->versaoDaMidia()]) }}" @endif></video>
+        @else
+          <p class="fraco">O vídeo ainda não chegou.</p>
+        @endif
+        @if($conteudo->roteiro)
+          <details class="cartao cartao-corpo">
+            <summary class="botao-link">Ver o roteiro aprovado</summary>
+            <ol class="lista-simples">
+              @foreach($conteudo->roteiro as $cena)<li>{{ $cena['fala'] ?? '' }}</li>@endforeach
+            </ol>
+          </details>
+        @endif
+      </section>
+    @else
     <section class="laminas" aria-label="Lâminas">
       @foreach($laminas as $l)
         <a class="lamina" href="{{ route('aprovar.lamina', [$conteudo, $l, 'v' => substr((string) $conteudo->hash_laminas, 0, 12)]) }}" target="_blank" rel="noopener">
@@ -30,20 +73,31 @@
         </a>
       @endforeach
     </section>
+    @endif
 
     <aside class="aprovar-lado">
       <div class="cartao forte">
         <div class="linha-item primeira"><div class="textos"><span class="forte">{{ $quando ? ucfirst($quando) : 'Sem data no calendário' }}</span></div></div>
-        <div class="linha-item"><div class="textos"><span class="fraco">Instagram (automático) · LinkedIn (você posta)</span></div></div>
+        <div class="linha-item"><div class="textos"><span class="fraco">{{ $conteudo->texto_linkedin || ! $conteudo->ehReels() ? 'Instagram (automático) · LinkedIn (você posta)' : 'Instagram (automático)' }}</span></div></div>
         @if($conteudo->publico)
           <div class="linha-item"><div class="textos"><span class="fraco">Para: {{ $conteudo->publicoTexto() }}</span></div></div>
         @endif
 
         <div class="cartao-corpo acoes">
+          @if($conteudo->estado === 'aguardando' && $conteudo->ehRoteiro())
+            <form method="post" action="{{ route('aprovar.roteiro', $conteudo) }}">
+              @csrf
+              <input type="hidden" name="versao" value="{{ $conteudo->versao }}">
+              <button type="submit" class="botao verde cheio"><x-icone nome="certo" tamanho="20"/>Aprovar roteiro</button>
+            </form>
+            <p class="fraco pequeno">Aprovar o roteiro não agenda nada: só libera a gravação.</p>
+          @endif
           @if($conteudo->estado === 'aguardando')
+            @unless($conteudo->ehRoteiro())
             <form method="post" action="{{ route('aprovar.aprovar', $conteudo) }}">
               @csrf
               <input type="hidden" name="versao" value="{{ $conteudo->versao }}">
+              <input type="hidden" name="midia" value="{{ $conteudo->ehReels() ? $conteudo->video_hash : $conteudo->hash_laminas }}">
               @if(! $conteudo->agendado_para || $conteudo->agendado_para->isPast())
                 <div class="campo">
                   <label for="quando">Quando postar?</label>
@@ -53,6 +107,7 @@
               @endif
               <button type="submit" class="botao verde cheio"><x-icone nome="certo" tamanho="20"/>Aprovar e agendar</button>
             </form>
+            @endunless
             <div class="duas">
               <details class="dobra">
                 <summary class="botao cheio">Pedir ajuste</summary>
@@ -60,7 +115,7 @@
                   @csrf
                   <div class="campo">
                     <label for="nota">O que precisa mudar?</label>
-                    <textarea id="nota" name="nota" rows="3" required placeholder="Ex.: trocar a capa, deixar a lâmina 3 mais curta">{{ old('nota') }}</textarea>
+                    <textarea id="nota" name="nota" rows="3" required placeholder="{{ $conteudo->ehReels() ? 'Ex.: cena 2 mais curta, trocar a tela da cena 4' : 'Ex.: trocar a capa, deixar a lâmina 3 mais curta' }}">{{ old('nota') }}</textarea>
                     @error('nota')<span class="erro-campo">{{ $message }}</span>@enderror
                   </div>
                   <button type="submit" class="botao escuro cheio">Enviar pedido</button>
@@ -82,6 +137,20 @@
                 @csrf
                 <button type="submit" class="botao verde cheio">Tentar de novo</button>
               </form>
+            @endif
+            @if($conteudo->estado === 'roteiro_aprovado')
+              <p class="fraco">Roteiro aprovado. O vídeo está sendo gravado e volta aqui para você aprovar antes de postar.</p>
+              <details class="dobra">
+                <summary class="botao cheio">Pedir ajuste no roteiro</summary>
+                <form method="post" action="{{ route('aprovar.ajuste', $conteudo) }}" class="dobra-corpo">
+                  @csrf
+                  <div class="campo">
+                    <label for="nota-roteiro">O que precisa mudar?</label>
+                    <textarea id="nota-roteiro" name="nota" rows="3" required></textarea>
+                  </div>
+                  <button type="submit" class="botao escuro cheio">Enviar pedido</button>
+                </form>
+              </details>
             @endif
             @if($conteudo->estado === 'ajuste' && $conteudo->nota)
               <p class="fraco">Ajuste pedido: {{ $conteudo->nota }}</p>

@@ -39,6 +39,18 @@ class MarcaController extends Controller
             : 'Postagem desligada: nada sai sozinho.');
     }
 
+    /** Quantos carrosséis e Reels por semana a produção de quinta faz para a marca. */
+    public function ritmo(Request $request, Marca $marca): RedirectResponse
+    {
+        $dados = $request->validate([
+            'carrosseis_semana' => 'required|integer|min:0|max:7',
+            'reels_semana' => 'required|integer|min:0|max:7',
+        ]);
+        $marca->forceFill($dados)->save();
+
+        return back()->with('ok', "Ritmo salvo: {$dados['carrosseis_semana']} carrossel(éis) e {$dados['reels_semana']} Reels por semana, a partir da próxima produção.");
+    }
+
     /** Confere de novo, na API, se o Instagram da marca continua ligado. */
     public function conferir(Marca $marca, InstagramClient $instagram): RedirectResponse
     {

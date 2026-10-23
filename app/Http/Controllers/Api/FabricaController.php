@@ -35,6 +35,7 @@ class FabricaController extends Controller
             'itens.*.teste' => 'nullable|boolean',
             'itens.*.motivo' => 'nullable|string|max:300',
             'itens.*.pauta' => 'nullable|string|max:80',
+            'itens.*.formato' => 'nullable|in:carrossel,reels',
         ]);
 
         $contagem = DB::transaction(function () use ($marca, $dados) {
@@ -46,6 +47,7 @@ class FabricaController extends Controller
                     'estado' => $i['estado'] ?? 'proposto', 'carrossel' => $i['carrossel'] ?? $item->carrossel,
                     'sugerido_ia' => (bool) ($i['sugerido_ia'] ?? false), 'teste' => (bool) ($i['teste'] ?? false),
                     'motivo' => $i['motivo'] ?? null, 'pauta_chave' => $i['pauta'] ?? $item->pauta_chave,
+                    'formato' => $i['formato'] ?? $item->formato ?? 'carrossel',
                 ]);
                 // Passou da fase de tema (produzido, aprovado...): a decisão de tema e o pedido de produção acabaram.
                 if (! $item->podeMexer()) {
@@ -92,11 +94,34 @@ class FabricaController extends Controller
             'publicado' => 'nullable|array',
             'publicado.link' => 'nullable|url|max:300',
             'publicado.em' => 'nullable|date',
+            'tipo' => 'nullable|in:carrossel,reels',
+            'roteiro' => 'nullable|array|max:30',
+            'roteiro.*.fala' => 'required|string|max:1500',
+            'roteiro.*.mostra' => 'required|string|max:600',
+            'duracao_segundos' => 'nullable|integer|min:3|max:180',
         ]);
 
         $conteudo = $recebe->receber($marca, $dados);
 
         return response()->json(['ok' => true, 'nome' => $conteudo->nome, 'versao' => $conteudo->versao, 'estado' => $conteudo->estado]);
+    }
+
+    /** Vídeo pronto de um Reels com roteiro aprovado (multipart: video MP4, capa JPEG opcional, sha256 do vídeo). */
+    public function enviarVideo(Request $request, Marca $marca, string $nome, RecebeConteudo $recebe): JsonResponse
+    {
+        $dados = $request->validate([
+            'versao' => 'required|integer|min:1|max:999',
+            'sha256' => ['required', 'regex:/^[a-f0-9]{64}$/i'],
+            'video' => 'required|file|max:'.(RecebeConteudo::MAX_BYTES_VIDEO / 1024),
+            'capa' => 'nullable|file|max:'.(RecebeConteudo::MAX_BYTES_IMAGEM / 1024),
+            'duracao_segundos' => 'nullable|integer|min:3|max:180',
+            'instagram' => 'nullable|string|max:2200',
+            'ajuste_feito' => 'nullable|string|max:1000',
+        ]);
+        $conteudo = $marca->conteudos()->where('nome', $nome)->firstOrFail();
+        $conteudo = $recebe->receberVideo($marca, $conteudo, $dados, $request->file('video'), $request->file('capa'));
+
+        return response()->json(['ok' => true, 'nome' => $conteudo->nome, 'versao' => $conteudo->versao, 'estado' => $conteudo->estado, 'video_hash' => $conteudo->video_hash]);
     }
 
     /**
@@ -116,6 +141,10 @@ class FabricaController extends Controller
                 'hora' => $c->agendado_para?->format('H:i'),
                 'versao' => $c->versao,
                 'hash_laminas' => $c->hash_laminas,
+                'tipo' => $c->tipo,
+                'fase' => $c->fase,
+                'roteiro_aprovado_versao' => $c->roteiro_aprovado_versao,
+                'video_hash' => $c->video_hash,
             ])->values());
     }
 
@@ -148,7 +177,7 @@ class FabricaController extends Controller
     private function itemParaKit(CalendarioItem $i): array
     {
         return ['id' => $i->chave, 'data' => $i->data->toDateString(), 'hora' => $i->hora, 'titulo' => $i->titulo,
-            'ideia' => $i->ideia, 'publico' => $i->publico ?? [], 'tipo' => $i->tipo, 'estado' => $i->estado, 'pauta' => $i->pauta_chave];
+            'ideia' => $i->ideia, 'publico' => $i->publico ?? [], 'tipo' => $i->tipo, 'estado' => $i->estado, 'pauta' => $i->pauta_chave, 'formato' => $i->formato];
     }
 
     public function ideias(Marca $marca): JsonResponse

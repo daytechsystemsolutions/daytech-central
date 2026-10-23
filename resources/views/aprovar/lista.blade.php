@@ -3,7 +3,7 @@
     <span class="sobretitulo">Conteúdo</span>
     <h1 class="titulo-pagina">Para <span class="marca-texto">aprovar.</span></h1>
     @if($esperando)
-      <p class="fraco">{{ $esperando === 1 ? '1 carrossel espera você.' : $esperando.' carrosséis esperam você.' }} Abra cada um, veja as lâminas e decida.</p>
+      <p class="fraco">{{ $esperando === 1 ? '1 conteúdo espera você.' : $esperando.' conteúdos esperam você.' }} Abra cada um, veja e decida.</p>
     @endif
   </div>
 
@@ -38,11 +38,18 @@
           $capa = $c->laminasAtuais()->first();
         @endphp
         <a class="cartao item-aprovar {{ $c->estado === 'aguardando' ? 'forte' : '' }}" href="{{ route('aprovar.ver', $c) }}">
-          @if($capa)<img class="capa" src="{{ route('aprovar.lamina', [$c, $capa, 'v' => substr((string) $c->hash_laminas, 0, 12)]) }}" alt="" width="72" height="90" loading="lazy">@endif
+          @if($c->ehReels() && $c->capa_caminho)
+            <img class="capa" src="{{ route('aprovar.capa', [$c, 'v' => $c->versaoDaMidia()]) }}" alt="" width="72" height="90" loading="lazy">
+          @elseif($capa)
+            <img class="capa" src="{{ route('aprovar.lamina', [$c, $capa, 'v' => $c->versaoDaMidia()]) }}" alt="" width="72" height="90" loading="lazy">
+          @endif
           <span class="textos">
             <span class="forte">{{ $c->titulo }}</span>
             <span class="fraco">{{ $c->agendado_para ? ucfirst($c->agendado_para->locale('pt_BR')->translatedFormat('D d/m')).' às '.$c->agendado_para->format('H\hi') : 'sem data' }}</span>
-            <span class="pilula {{ $classe }}">{{ $rotulo }}</span>
+            <span class="linha-pilulas">
+              @if($c->ehReels())<span class="pilula reels">{{ $c->tipoTexto() }}</span>@endif
+              <span class="pilula {{ $classe }}">{{ $rotulo }}</span>
+            </span>
           </span>
           <x-icone nome="seta-direita" tamanho="18"/>
         </a>

@@ -80,16 +80,16 @@ class AprovacaoTest extends TestCase
         $usuario = $this->usuario();
 
         $this->actingAs($usuario)->get('/')->assertSee('conteúdo espera você');
-        $this->actingAs($usuario)->get('/aprovar')->assertOk()->assertSee('1 carrossel espera você')->assertSee('Semana de 02/11 a 08/11');
+        $this->actingAs($usuario)->get('/aprovar')->assertOk()->assertSee('1 conteúdo espera você')->assertSee('Semana de 02/11 a 08/11');
         $this->actingAs($usuario)->get("/aprovar/{$conteudo->id}")->assertOk()->assertSee('Aprovar e agendar')->assertSee('consultorias');
         $lamina = $conteudo->laminasAtuais()->first();
         $this->actingAs($usuario)->get("/aprovar/{$conteudo->id}/laminas/{$lamina->id}")->assertOk();
 
         // Versão errada (o carrossel mudou enquanto a tela estava aberta): não aprova.
-        $this->actingAs($usuario)->post("/aprovar/{$conteudo->id}/aprovar", ['versao' => 2])->assertSessionHas('aviso');
+        $this->actingAs($usuario)->post("/aprovar/{$conteudo->id}/aprovar", ['midia' => $conteudo->fresh()->hash_laminas, 'versao' => 2])->assertSessionHas('aviso');
         $this->assertSame('aguardando', $conteudo->fresh()->estado);
 
-        $this->actingAs($usuario)->post("/aprovar/{$conteudo->id}/aprovar", ['versao' => 1])->assertSessionHas('ok');
+        $this->actingAs($usuario)->post("/aprovar/{$conteudo->id}/aprovar", ['midia' => $conteudo->fresh()->hash_laminas, 'versao' => 1])->assertSessionHas('ok');
         $this->assertSame('agendado', $conteudo->fresh()->estado);
 
         $this->api('GET', '/conteudos/decisoes')->assertOk()->assertJsonFragment([
@@ -105,7 +105,7 @@ class AprovacaoTest extends TestCase
         $conteudo = Conteudo::first();
         $usuario = $this->usuario();
 
-        $this->actingAs($usuario)->post("/aprovar/{$conteudo->id}/aprovar", ['versao' => 1]);
+        $this->actingAs($usuario)->post("/aprovar/{$conteudo->id}/aprovar", ['midia' => $conteudo->fresh()->hash_laminas, 'versao' => 1]);
         $this->actingAs($usuario)->post("/aprovar/{$conteudo->id}/desfazer")->assertSessionHas('ok');
         $this->api('GET', '/conteudos/decisoes')->assertJsonFragment(['id' => '2026-11-ghe', 'decisao' => 'aguardando']);
 
@@ -137,8 +137,8 @@ class AprovacaoTest extends TestCase
         $conteudo = Conteudo::first();
         $usuario = $this->usuario();
 
-        $this->actingAs($usuario)->post("/aprovar/{$conteudo->id}/aprovar", ['versao' => 1])->assertSessionHasErrors('quando');
-        $this->actingAs($usuario)->post("/aprovar/{$conteudo->id}/aprovar", ['versao' => 1, 'quando' => now()->addDays(3)->format('Y-m-d\TH:i')])->assertSessionHas('ok');
+        $this->actingAs($usuario)->post("/aprovar/{$conteudo->id}/aprovar", ['midia' => $conteudo->fresh()->hash_laminas, 'versao' => 1])->assertSessionHasErrors('quando');
+        $this->actingAs($usuario)->post("/aprovar/{$conteudo->id}/aprovar", ['midia' => $conteudo->fresh()->hash_laminas, 'versao' => 1, 'quando' => now()->addDays(3)->format('Y-m-d\TH:i')])->assertSessionHas('ok');
         $this->assertSame('agendado', $conteudo->fresh()->estado);
     }
 
@@ -150,7 +150,7 @@ class AprovacaoTest extends TestCase
         $usuario = $this->usuario();
 
         $this->actingAs($usuario)->get("/aprovar/{$conteudo->id}")->assertSee('Quando postar?');
-        $this->actingAs($usuario)->post("/aprovar/{$conteudo->id}/aprovar", ['versao' => 1])->assertSessionHasErrors('quando');
+        $this->actingAs($usuario)->post("/aprovar/{$conteudo->id}/aprovar", ['midia' => $conteudo->fresh()->hash_laminas, 'versao' => 1])->assertSessionHasErrors('quando');
         $this->assertSame('aguardando', $conteudo->fresh()->estado);
     }
 

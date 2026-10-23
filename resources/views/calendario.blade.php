@@ -44,6 +44,7 @@
             <span class="textos">
               <span class="forte {{ $rotulo === 'tirado' ? 'riscado' : '' }}">{{ $item->titulo }}</span>
               <span class="linha-pilulas"><span class="pilula {{ $classe }}">{{ $rotulo }}</span>
+                @if($item->formato === 'reels')<span class="pilula reels">Reels</span>@endif
                 @if($item->sugerido_ia)<span class="pilula selo-ia">sugerido pela IA</span>@endif
                 @if($item->teste)<span class="pilula atencao">teste</span>@endif
                 <span class="fraco">{{ \App\Models\Conteudo::publicoEmTexto($item->publico) }}</span></span>
@@ -60,7 +61,7 @@
             @if($conteudo && $conteudo->estado === 'aguardando')
               <a class="botao escuro cheio" href="{{ route('aprovar.ver', $conteudo) }}">Ver e aprovar</a>
             @elseif($conteudo)
-              <a class="botao cheio" href="{{ route('aprovar.ver', $conteudo) }}">Ver o carrossel</a>
+              <a class="botao cheio" href="{{ route('aprovar.ver', $conteudo) }}">Ver o {{ $conteudo->tipoTexto() }}</a>
             @elseif($item->producao_pedida_em)
               <p class="fraco">
                 @if($item->producao_iniciada_em)

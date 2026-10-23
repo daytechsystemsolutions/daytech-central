@@ -321,3 +321,17 @@ p { margin: 0; }
 .porque-pontos { font-weight: 800; font-variant-numeric: tabular-nums; }
 .porque-resumo { grid-column: 1 / -1; font-size: 13px; }
 .porque-fontes a { font-weight: 600; word-break: break-word; }
+
+/* Reels: roteiro cena por cena e o vídeo na aprovação */
+.roteiro { display: flex; flex-direction: column; gap: 12px; }
+.roteiro-cenas { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.roteiro-cenas p { margin: 0; }
+.roteiro-cenas li { display: flex; flex-direction: column; gap: 6px; }
+.roteiro-fala { font-size: 16px; line-height: 1.5; color: var(--marinho); font-weight: 600; }
+.roteiro-quadro { width: 120px; height: auto; border-radius: 8px; border: 1px solid var(--borda, #E2E8F0); }
+.reels { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.reels-video { width: 100%; max-width: 360px; aspect-ratio: 9 / 16; background: var(--marinho-escuro); border-radius: 14px; border: 2px solid var(--marinho-escuro); box-shadow: 4px 4px 0 var(--marinho-escuro); }
+.pilula.reels { background: var(--marinho); color: #FFFFFF; }
+.linha-item.ritmo { flex-direction: column; align-items: stretch; gap: 10px; }
+.ritmo-form { display: flex; align-items: flex-end; gap: 10px; }
+.ritmo-form .duas { flex: 1; }

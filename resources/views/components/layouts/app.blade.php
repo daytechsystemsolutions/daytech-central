@@ -8,7 +8,7 @@
 <title>{{ $titulo ?? 'Central' }} · Central DayTech</title>
 <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/central.css?v=9">
+<link rel="stylesheet" href="/css/central.css?v=11">
 <script src="/js/central.js?v=1" defer></script>
 </head>
 <body>

@@ -39,7 +39,7 @@ class Resultados
             $melhor = $partes->keys()->first();
             $parte = $partes->first();
             $vezes = $parte && $parte['media'] ? round($parte['valor'] / $parte['media'], 1) : null;
-            $nome = ['alcance' => 'alcance', 'valor' => 'salvos e compartilhamentos', 'crescimento' => 'seguidores e visitas ao perfil', 'interesse' => 'toques no perfil'][$melhor] ?? null;
+            $nome = ['alcance' => 'alcance', 'valor' => 'salvos e compartilhamentos', 'crescimento' => 'seguidores e visitas ao perfil', 'interesse' => 'toques no perfil', 'retencao' => 'tempo assistido'][$melhor] ?? null;
 
             return ['post' => $p, 'motivo' => $nome && $vezes && $vezes > 1
                 ? number_format($vezes, 1, ',', '').'x a média em '.$nome

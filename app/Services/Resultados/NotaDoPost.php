@@ -11,23 +11,27 @@ use Illuminate\Support\Collection;
  * Nota do post, de 0 a 100, sempre comparada com a própria conta (plano aprovado em 23/10/2026).
  *
  *   pontos da parte = mínimo(100, 50 × valor do post ÷ mediana dos últimos 20 posts)
- *   nota = média ponderada dos pontos das partes que o post tem (vídeo não tem crescimento nem interesse)
+ *   nota = média ponderada dos pontos das partes que o post tem (vídeo não tem crescimento nem interesse;
+ *          só o Reels tem retenção = tempo médio assistido, comparado com os outros Reels da conta)
  *
  * 50 = na média da conta; 100 = o dobro ou mais. Fecha no 7º dia (usa a leitura do 7º dia em diante); antes é parcial.
  */
 class NotaDoPost
 {
-    public const PARTES = ['alcance', 'valor', 'crescimento', 'interesse'];
+    public const PARTES = ['alcance', 'valor', 'crescimento', 'interesse', 'retencao'];
 
-    /** Pesos por fase da conta (soma 100). */
+    /** Pesos por fase da conta. As quatro primeiras somam 100; a retenção só existe no Reels (a conta é refeita pelo que o post tem). */
     public const PESOS = [
-        'conhecido' => ['alcance' => 30, 'valor' => 30, 'crescimento' => 25, 'interesse' => 15],
-        'clientes' => ['alcance' => 15, 'valor' => 25, 'crescimento' => 20, 'interesse' => 40],
+        'conhecido' => ['alcance' => 30, 'valor' => 30, 'crescimento' => 25, 'interesse' => 15, 'retencao' => 25],
+        'clientes' => ['alcance' => 15, 'valor' => 25, 'crescimento' => 20, 'interesse' => 40, 'retencao' => 15],
     ];
 
     public const DIAS_PARA_FECHAR = 7;
 
     public const POSTS_NA_MEDIA = 20;
+
+    /** Médias por post durante uma rodada (na instância: não sobra de uma rodada para a outra). */
+    private array $cache = [];
 
     /** Recalcula as notas abertas da marca e fecha as que chegaram ao 7º dia. Devolve quantas mudaram. */
     public function atualizar(Marca $marca): int
@@ -76,6 +80,7 @@ class NotaDoPost
             'valor' => $taxa($m->salvos, $m->compartilhamentos),
             'crescimento' => $taxa($m->novos_seguidores, $m->visitas_perfil),
             'interesse' => $taxa($m->acoes_perfil),
+            'retencao' => $m->tempo_medio_ms !== null ? round($m->tempo_medio_ms / 1000, 1) : null, // segundos
         ];
     }
 
@@ -90,10 +95,9 @@ class NotaDoPost
     /** Mediana de cada parte nos últimos 20 posts da marca com números (sem contar o próprio post). */
     private function medias(Marca $marca, Post $post): array
     {
-        static $cache = [];
         $chave = $marca->id.':'.$post->id;
-        if (isset($cache[$chave])) {
-            return $cache[$chave];
+        if (isset($this->cache[$chave])) {
+            return $this->cache[$chave];
         }
 
         $outros = $marca->posts()->where('sem_numeros', false)->where('id', '!=', $post->id)
@@ -105,7 +109,7 @@ class NotaDoPost
             $medias[$parte] = $this->mediana($outros->pluck($parte)->filter(fn ($v) => $v !== null)->values());
         }
 
-        return $cache[$chave] = $medias;
+        return $this->cache[$chave] = $medias;
     }
 
     private function mediana(Collection $valores): ?float

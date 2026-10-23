@@ -10,7 +10,7 @@ class CalendarioItem extends Model
     protected $table = 'calendario_itens';
 
     protected $fillable = ['marca_id', 'chave', 'data', 'hora', 'titulo', 'ideia', 'publico', 'tipo', 'estado', 'carrossel', 'decisao', 'nota', 'decidido_em',
-        'producao_pedida_em', 'producao_iniciada_em', 'origem', 'sugerido_ia', 'teste', 'motivo', 'pauta_chave'];
+        'producao_pedida_em', 'producao_iniciada_em', 'origem', 'sugerido_ia', 'teste', 'motivo', 'pauta_chave', 'formato'];
 
     /** Estados em que o tema ainda pode ser trocado ou tirado (antes da produção). */
     public const DECIDIVEIS = ['proposto', 'tema_aprovado', 'trocar', 'tirado'];

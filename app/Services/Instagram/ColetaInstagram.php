@@ -21,8 +21,8 @@ class ColetaInstagram
     public const METRICAS_POST = ['views', 'reach', 'likes', 'comments', 'saved', 'shares', 'total_interactions',
         'follows', 'profile_visits', 'profile_activity'];
 
-    /** Vídeo (Reels) não tem novos seguidores, visitas e ações no perfil por post. */
-    public const METRICAS_VIDEO = ['views', 'reach', 'likes', 'comments', 'saved', 'shares', 'total_interactions'];
+    /** Vídeo (Reels) não tem novos seguidores, visitas e ações no perfil por post; tem o tempo médio assistido. */
+    public const METRICAS_VIDEO = ['views', 'reach', 'likes', 'comments', 'saved', 'shares', 'total_interactions', 'ig_reels_avg_watch_time'];
 
     public const METRICAS_CONTA = ['reach', 'profile_views', 'accounts_engaged', 'total_interactions', 'profile_links_taps'];
 

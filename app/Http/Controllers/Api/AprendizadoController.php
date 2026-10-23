@@ -118,10 +118,11 @@ class AprendizadoController extends Controller
         $posts = $marca->posts()->where('publicado_em', '>=', now()->subDays(90))->pluck('id');
 
         return response()->json([
+            'ritmo' => ['carrosseis_semana' => $marca->carrosseis_semana, 'reels_semana' => $marca->reels_semana],
             'comentarios' => \App\Models\PostComentario::whereIn('post_id', $posts)->latest('comentado_em')->limit(100)->pluck('texto'),
             'ideias' => $marca->ideias()->latest()->pluck('texto'),
             'calendario' => $marca->calendario()->where('data', '>=', now()->toDateString())->where('data', '<', now()->addDays(60)->toDateString())
-                ->orderBy('data')->get(['chave', 'data', 'titulo', 'publico', 'estado', 'decisao', 'origem', 'pauta_chave']),
+                ->orderBy('data')->get(['chave', 'data', 'titulo', 'publico', 'estado', 'decisao', 'origem', 'pauta_chave', 'formato']),
             'pautas' => $marca->pautas()->where('estado', '!=', 'descartada')->orderByDesc('potencial')->get(['chave', 'titulo', 'potencial', 'estado', 'calendario_chave']),
         ]);
     }

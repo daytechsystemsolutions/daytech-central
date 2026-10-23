@@ -13,10 +13,11 @@ class PostMetrica extends Model
         'views' => 'visualizacoes', 'reach' => 'alcance', 'likes' => 'curtidas', 'comments' => 'comentarios',
         'saved' => 'salvos', 'shares' => 'compartilhamentos', 'total_interactions' => 'interacoes',
         'follows' => 'novos_seguidores', 'profile_visits' => 'visitas_perfil', 'profile_activity' => 'acoes_perfil',
+        'ig_reels_avg_watch_time' => 'tempo_medio_ms',
     ];
 
     protected $fillable = ['post_id', 'dia', 'visualizacoes', 'alcance', 'curtidas', 'comentarios', 'salvos',
-        'compartilhamentos', 'interacoes', 'novos_seguidores', 'visitas_perfil', 'acoes_perfil'];
+        'compartilhamentos', 'interacoes', 'novos_seguidores', 'visitas_perfil', 'acoes_perfil', 'tempo_medio_ms'];
 
     protected function casts(): array
     {

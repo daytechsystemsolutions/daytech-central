@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Route;
 // Login, 2 fatores e sair: rotas do Fortify (config/fortify.php). Sem cadastro aberto.
 
 // Lâmina para o Instagram baixar na hora de postar: link assinado que expira em 2 horas, sem login.
+Route::get('/pv/{conteudo}', [AprovarController::class, 'videoPublico'])->middleware(['signed', 'throttle:60,1'])->name('publico.video');
+Route::get('/pc/{conteudo}', [AprovarController::class, 'capaPublica'])->middleware(['signed', 'throttle:60,1'])->name('publico.capa');
 Route::get('/p/{conteudo}/{lamina}', [AprovarController::class, 'laminaPublica'])->middleware(['signed', 'throttle:120,1'])->name('publico.lamina');
 
 Route::middleware(['auth', 'dois.fatores', 'marca.atual'])->group(function () {
@@ -25,6 +27,9 @@ Route::middleware(['auth', 'dois.fatores', 'marca.atual'])->group(function () {
     Route::get('/aprovar', [AprovarController::class, 'index'])->name('aprovar');
     Route::get('/aprovar/{conteudo}', [AprovarController::class, 'ver'])->name('aprovar.ver');
     Route::post('/aprovar/{conteudo}/aprovar', [AprovarController::class, 'aprovar'])->name('aprovar.aprovar');
+    Route::post('/aprovar/{conteudo}/roteiro', [AprovarController::class, 'aprovarRoteiro'])->name('aprovar.roteiro');
+    Route::get('/aprovar/{conteudo}/video.mp4', [AprovarController::class, 'video'])->name('aprovar.video');
+    Route::get('/aprovar/{conteudo}/capa.jpg', [AprovarController::class, 'capa'])->name('aprovar.capa');
     Route::post('/aprovar/{conteudo}/ajuste', [AprovarController::class, 'ajuste'])->name('aprovar.ajuste');
     Route::post('/aprovar/{conteudo}/tirar', [AprovarController::class, 'tirar'])->name('aprovar.tirar');
     Route::post('/aprovar/{conteudo}/desfazer', [AprovarController::class, 'desfazer'])->name('aprovar.desfazer');
@@ -48,6 +53,7 @@ Route::middleware(['auth', 'dois.fatores', 'marca.atual'])->group(function () {
     Route::get('/marcas', [MarcaController::class, 'index'])->name('marcas');
     Route::post('/marcas/{marca}/abrir', [MarcaController::class, 'escolher'])->name('marcas.escolher');
     Route::post('/marcas/{marca}/postagem', [MarcaController::class, 'postagem'])->name('marcas.postagem');
+    Route::post('/marcas/{marca}/ritmo', [MarcaController::class, 'ritmo'])->name('marcas.ritmo');
     Route::post('/marcas/{marca}/conferir', [MarcaController::class, 'conferir'])
         ->middleware('throttle:10,1')->name('marcas.conferir');
 

@@ -147,7 +147,7 @@ class CalendarioController extends Controller
         $item = $marca->calendario()->create([
             'chave' => $chave, 'data' => $dados['data'], 'hora' => $dados['hora'] ?? '11:40', 'titulo' => $pauta->titulo,
             'ideia' => $pauta->ideia, 'publico' => $pauta->publico && $pauta->publico !== 'geral' ? [$pauta->publico] : [], 'estado' => 'tema_aprovado',
-            'origem' => 'central', 'pauta_chave' => $pauta->chave,
+            'origem' => 'central', 'pauta_chave' => $pauta->chave, 'formato' => $pauta->formato,
         ]);
         $pauta->forceFill(['estado' => 'no_calendario', 'calendario_chave' => $chave])->save();
 

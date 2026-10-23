@@ -61,13 +61,34 @@
             <form method="post" action="{{ route('marcas.postagem', $m) }}" class="dobra-corpo confirmar-postagem">
               @csrf
               <input type="hidden" name="ligar" value="1">
-              <span class="fraco">A Central vai postar sozinha no Instagram, no horário, só os carrosséis em que você tocou "Aprovar e agendar". Dá para desligar quando quiser.</span>
+              <span class="fraco">A Central vai postar sozinha no Instagram, no horário, só os carrosséis e Reels em que você tocou "Aprovar e agendar". Dá para desligar quando quiser.</span>
               <button type="submit" class="botao verde cheio">Ligar a postagem</button>
             </form>
           </details>
         @endif
       </div>
       @endif
+
+      <div class="linha-item ritmo">
+        <div class="textos">
+          <span class="forte">Ritmo da semana</span>
+          <span class="fraco">Quanto a produção de quinta faz por semana.</span>
+        </div>
+        <form method="post" action="{{ route('marcas.ritmo', $m) }}" class="ritmo-form">
+          @csrf
+          <div class="duas">
+            <div class="campo">
+              <label for="carrosseis-{{ $m->slug }}">Carrosséis</label>
+              <input id="carrosseis-{{ $m->slug }}" name="carrosseis_semana" type="number" min="0" max="7" required value="{{ $m->carrosseis_semana }}">
+            </div>
+            <div class="campo">
+              <label for="reels-{{ $m->slug }}">Reels</label>
+              <input id="reels-{{ $m->slug }}" name="reels_semana" type="number" min="0" max="7" required value="{{ $m->reels_semana }}">
+            </div>
+          </div>
+          <button type="submit" class="botao pequeno escuro">Salvar</button>
+        </form>
+      </div>
 
       @if($m->horario_padrao)
         <div class="linha-item">
