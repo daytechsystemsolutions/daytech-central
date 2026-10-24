@@ -45,6 +45,23 @@
         </section>
         <p class="fraco pequeno">Números acumulados até {{ $ultima->dia->format('d/m') }}. "—" é número que o Instagram não entrega para este tipo de post.</p>
       @endif
+
+      @if($rastro)
+        <section class="cartao cartao-corpo secao" aria-labelledby="rastro">
+          <h2 id="rastro" class="rotulo">Do post ao site</h2>
+          <div class="resumo">
+            <div class="cartao indicador"><strong>{{ $numero($rastro['cliques']) }}</strong><span class="fraco">cliques no link</span></div>
+            <div class="cartao indicador"><strong>{{ $numero($rastro['leads']) }}</strong><span class="fraco">leads deste post</span></div>
+          </div>
+          <p class="fraco pequeno">Leva para mednextsst.com{{ $rastro['destino'] }}. Os leads contam quem chegou ao site pelo link deste post e preencheu o formulário.</p>
+          @if($rastro['link'])
+            <div class="titulo-com-botao">
+              <span class="fraco pequeno">Link para story e Direct: <span id="link-story">{{ $rastro['link'] }}?m=story</span></span>
+              <button type="button" class="botao pequeno" data-copiar="link-story">Copiar</button>
+            </div>
+          @endif
+        </section>
+      @endif
     </div>
 
     <div class="aprovar-lado">

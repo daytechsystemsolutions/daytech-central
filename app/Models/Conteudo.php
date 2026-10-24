@@ -15,6 +15,7 @@ class Conteudo extends Model
         'texto_linkedin', 'conferencia', 'fontes', 'versao', 'estado', 'decisao', 'nota', 'versao_decidida',
         'decidido_em', 'ajuste_feito', 'pdf_caminho', 'hash_laminas', 'link', 'publicado_em', 'erro_postagem',
         'tipo', 'fase', 'roteiro', 'roteiro_aprovado_versao', 'video_caminho', 'video_hash', 'capa_caminho', 'duracao_segundos',
+        'destino', 'codigo_link',
     ];
 
     protected function casts(): array
@@ -46,6 +47,35 @@ class Conteudo extends Model
     public function marca(): BelongsTo
     {
         return $this->belongsTo(Marca::class);
+    }
+
+    public function cliques(): HasMany
+    {
+        return $this->hasMany(LinkClique::class);
+    }
+
+    /** Endereço do site para onde o post leva (com a UTM do post). Sem destino: a home. */
+    public function urlDoDestino(string $meio = 'bio'): string
+    {
+        $base = rtrim((string) ($this->marca?->site_url ?: config('central.site_url')), '/');
+        $caminho = '/'.ltrim((string) ($this->destino ?: '/'), '/');
+        $utm = http_build_query(['utm_source' => 'instagram', 'utm_medium' => $meio,
+            'utm_campaign' => $this->calendario_chave ?: $this->nome, 'utm_content' => $this->nome]);
+
+        return $base.$caminho.(str_contains($caminho, '?') ? '&' : '?').$utm;
+    }
+
+    /** Código curto do link (gerado uma vez, na primeira vez que alguém pede). */
+    public function garantirCodigoLink(): string
+    {
+        if (! $this->codigo_link) {
+            do {
+                $codigo = strtolower(\Illuminate\Support\Str::random(7));
+            } while (self::where('codigo_link', $codigo)->exists());
+            $this->forceFill(['codigo_link' => $codigo])->save();
+        }
+
+        return $this->codigo_link;
     }
 
     public function laminas(): HasMany

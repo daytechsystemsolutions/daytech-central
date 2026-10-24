@@ -99,6 +99,7 @@ class FabricaController extends Controller
             'roteiro.*.fala' => 'required|string|max:1500',
             'roteiro.*.mostra' => 'required|string|max:600',
             'duracao_segundos' => 'nullable|integer|min:3|max:180',
+            'destino' => ['nullable', 'string', 'max:200', 'regex:#^/[a-z0-9\-/]*$#'],
         ]);
 
         $conteudo = $recebe->receber($marca, $dados);
@@ -145,6 +146,7 @@ class FabricaController extends Controller
                 'fase' => $c->fase,
                 'roteiro_aprovado_versao' => $c->roteiro_aprovado_versao,
                 'video_hash' => $c->video_hash,
+                'link' => route('link', $c->garantirCodigoLink()),
             ])->values());
     }
 

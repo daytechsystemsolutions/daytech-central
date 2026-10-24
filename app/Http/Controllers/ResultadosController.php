@@ -46,8 +46,17 @@ class ResultadosController extends Controller
         $leituras = $post->metricas;
         $em = fn (int $dias) => $leituras->first(fn ($m) => $m->dia->gte($post->publicado_em->copy()->addDays($dias)->startOfDay()));
 
+        // Rastro até o site: cliques no link curto do post e leads que chegaram com a UTM dele (utm_content = nome).
+        $rastro = $post->conteudo ? [
+            'cliques' => $post->conteudo->cliques()->count(),
+            'leads' => $post->marca->leads()->where('conteudo', $post->conteudo->nome)->count(),
+            'link' => $post->conteudo->codigo_link ? route('link', $post->conteudo->codigo_link) : null,
+            'destino' => $post->conteudo->destino ?: '/',
+        ] : null;
+
         return view('resultados.post', [
             'post' => $post,
+            'rastro' => $rastro,
             'ultima' => $leituras->last(),
             'evolucao' => [
                 ['quando' => '1º dia', 'leitura' => $leituras->first()],

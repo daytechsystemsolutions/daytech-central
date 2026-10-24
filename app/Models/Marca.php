@@ -18,7 +18,7 @@ class Marca extends Model
         'nome', 'slug', 'iniciais', 'cor', 'descricao', 'horario_padrao',
         'instagram_usuario', 'instagram_conta_id', 'instagram_token',
         'instagram_verificado_em', 'instagram_erro', 'postagem_automatica', 'ativa', 'ordem', 'fase', 'postagem_ligada_em',
-        'carrosseis_semana', 'reels_semana',
+        'carrosseis_semana', 'reels_semana', 'site_url',
     ];
 
     protected $hidden = ['instagram_token'];

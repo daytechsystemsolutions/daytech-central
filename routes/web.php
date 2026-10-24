@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Route;
 // Login, 2 fatores e sair: rotas do Fortify (config/fortify.php). Sem cadastro aberto.
 
 // Lâmina para o Instagram baixar na hora de postar: link assinado que expira em 2 horas, sem login.
+Route::get('/l/{codigo}', [\App\Http\Controllers\LinkController::class, 'ir'])->where('codigo', '[a-z0-9]{4,12}')
+    ->middleware('throttle:120,1')->name('link');
 Route::get('/pv/{conteudo}', [AprovarController::class, 'videoPublico'])->middleware(['signed', 'throttle:60,1'])->name('publico.video');
 Route::get('/pc/{conteudo}', [AprovarController::class, 'capaPublica'])->middleware(['signed', 'throttle:60,1'])->name('publico.capa');
 Route::get('/p/{conteudo}/{lamina}', [AprovarController::class, 'laminaPublica'])->middleware(['signed', 'throttle:120,1'])->name('publico.lamina');

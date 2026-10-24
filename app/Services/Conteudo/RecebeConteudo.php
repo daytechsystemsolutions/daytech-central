@@ -91,6 +91,7 @@ class RecebeConteudo
                 'fontes' => $dados['fontes'] ?? [],
                 'versao' => (int) $dados['versao'],
                 'tipo' => $tipo,
+                'destino' => $dados['destino'] ?? $conteudo->destino,
             ]);
             if ($tipo === 'reels') {
                 $conteudo->fill(['fase' => 'roteiro', 'roteiro' => array_values($dados['roteiro'] ?? $conteudo->roteiro ?? []),
