@@ -3,8 +3,13 @@
 # Domínio novo = um bloco novo aqui + `docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile`.
 
 # Site institucional MedNext (repo mednextsst-site). O nginx do site segue com vídeos, cache e limites.
-mednextsst.com, www.mednextsst.com {
+mednextsst.com {
     reverse_proxy mednext_site_nginx_prod:80
+}
+
+# www vai para o endereço sem www (um endereço só para o Google; a canônica do site já é sem www).
+www.mednextsst.com {
+    redir https://mednextsst.com{uri} permanent
 }
 
 # Central DayTech (este repo, container central_app). O deploy copia este arquivo para ~/porteiro e recarrega.
